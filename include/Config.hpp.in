@@ -1,0 +1,16 @@
+//
+// Created by austin on 8/2/21.
+//
+
+#ifndef GOLDEN_CONFIG_HPP
+#define GOLDEN_CONFIG_HPP
+
+#define golden_NAME "@PROJECT_NAME@"
+#define golden_VERSION "@PROJECT_VERSION@"
+#define golden_VERSION_MAJOR "@PROJECT_VERSION_MAJOR@"
+#define golden_VERSION_MINOR "@PROJECT_VERSION_MINOR@"
+#define golden_VERSION_PATCH "@PROJECT_VERSION_PATCH@"
+
+#define golden_GOLDEN_STORAGE_PATH "@golden_GOLDEN_STORAGE_PATH@"
+
+#endif // GOLDEN_CONFIG_HPP
