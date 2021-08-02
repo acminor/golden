@@ -1,0 +1,6 @@
+[submodule "tests/libs/googletest"]
+	path = tests/libs/googletest
+	url = https://github.com/google/googletest.git
+[submodule "libs/protobuf"]
+	path = libs/protobuf
+	url = https://github.com/protocolbuffers/protobuf
