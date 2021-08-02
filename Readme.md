@@ -20,3 +20,7 @@ Instead, we compare pure data to pure data. Currently, we do this using Protobuf
 our system should be extendable in the future to other serialization libraries. The nice
 thing about Protobuf is that it has facilities for comparing two messages for equality,
 including handling floating-point error.
+
+## Examples
+
+See [tests/GoldenTests.cpp](tests/GoldenTests.cpp) for an example of how the library is used.
