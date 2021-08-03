@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-#include "Tester.hpp"
+#include "Golden.hpp"
 
 #include "GoldenTests.pb.h"
 

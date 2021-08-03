@@ -7,7 +7,7 @@
 
 #include "gtest/gtest.h"
 
-#include "Tester.hpp"
+#include "Golden.hpp"
 
 #include "GoldenTests.pb.h"
 
@@ -21,13 +21,13 @@ TEST(ProtobufWriter, WriteThenReadNonExistingFile)
     ASSERT_FALSE(
         filesystem::exists(golden::GoldenUtility::PathToGolden(WriteThenReadNonExistingFile())));
 
-    auto writer = golden::ProtobufWriter();
+    auto writer = golden::protobuf::Writer();
     auto a = golden_tests::IntWrapper();
 
     a.set_value(3);
     ASSERT_NO_THROW(writer.write(WriteThenReadNonExistingFile(), a));
 
-    auto reader = golden::ProtobufReader();
+    auto reader = golden::protobuf::Reader();
     auto b = golden_tests::IntWrapper();
 
     reader.read(WriteThenReadNonExistingFile(), b);
@@ -49,13 +49,13 @@ TEST(ProtobufWriter, WriteThenReadExistingFile)
     outFile.flush();
     outFile.close();
 
-    auto writer = golden::ProtobufWriter();
+    auto writer = golden::protobuf::Writer();
     auto a = golden_tests::IntWrapper();
 
     a.set_value(3);
     ASSERT_NO_THROW(writer.write(WriteThenReadExistingFile(), a));
 
-    auto reader = golden::ProtobufReader();
+    auto reader = golden::protobuf::Reader();
     auto b = golden_tests::IntWrapper();
 
     reader.read(WriteThenReadExistingFile(), b);

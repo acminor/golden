@@ -7,14 +7,14 @@
 
 #include "gtest/gtest.h"
 
-#include "Tester.hpp"
+#include "Golden.hpp"
 
 #include "GoldenTests.pb.h"
 
 TypedGoldenKey(FileThatDoesNotExist);
 TEST(ProtobufReader, FileDoesNotExist)
 {
-    auto reader = golden::ProtobufReader();
+    auto reader = golden::protobuf::Reader();
     auto value = golden_tests::IntWrapper();
 
     ASSERT_ANY_THROW(reader.read(FileThatDoesNotExist(), value));
@@ -27,7 +27,7 @@ TEST(ProtobufReader, FileExists)
     outFile.flush();
     outFile.close();
 
-    auto reader = golden::ProtobufReader();
+    auto reader = golden::protobuf::Reader();
     auto value = golden_tests::IntWrapper();
 
     ASSERT_NO_THROW(reader.read(FileThatDoesExist(), value));

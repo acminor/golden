@@ -6,7 +6,7 @@
 
 #include "gtest/gtest.h"
 
-#include "Tester.hpp"
+#include "Golden.hpp"
 #include "GoldenTests.pb.h"
 
 enum Comparison {
@@ -23,7 +23,7 @@ TEST(ProtobufComparer, TwoUnsetMessages)
     auto a = golden_tests::IntPairWrapper();
     auto b = golden_tests::IntPairWrapper();
 
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     ASSERT_EQ(comparer.compare(a, b), EQUAL);
 }
@@ -36,7 +36,7 @@ TEST(ProtobufComparer, OneSetOneUnsetMessage)
 {
     auto a = golden_tests::IntWrapper();
     auto b = golden_tests::IntWrapper();
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     b.set_value(1);
     ASSERT_NE(comparer.compare(a, b), EQUAL);
@@ -49,7 +49,7 @@ TEST(ProtobufComparer, EqualOneFieldMessage)
 {
     auto a = golden_tests::IntWrapper();
     auto b = golden_tests::IntWrapper();
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     a.set_value(0);
     b.set_value(0);
@@ -68,7 +68,7 @@ TEST(ProtobufComparer, NonEqualOneFieldMessage)
 {
     auto a = golden_tests::IntWrapper();
     auto b = golden_tests::IntWrapper();
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     a.set_value(0);
     b.set_value(-1);
@@ -87,7 +87,7 @@ TEST(ProtobufComparer, FloatMessageExact)
 {
     auto a = golden_tests::FloatWrapper();
     auto b = golden_tests::FloatWrapper();
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     a.set_value(0.0);
     b.set_value(0.0);
@@ -106,7 +106,7 @@ TEST(ProtobufComparer, FloatMessageNotEqual)
 {
     auto a = golden_tests::FloatWrapper();
     auto b = golden_tests::FloatWrapper();
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     a.set_value(0.5);
     b.set_value(0.0);
@@ -130,7 +130,7 @@ TEST(ProtobufComparer, FloatMessageApproximate)
 {
     auto a = golden_tests::FloatWrapper();
     auto b = golden_tests::FloatWrapper();
-    auto comparer = golden::ProtobufComparer();
+    auto comparer = golden::protobuf::Comparer();
 
     a.set_value(3.0f);
     b.set_value(3.0f - 30*FLT_EPSILON);

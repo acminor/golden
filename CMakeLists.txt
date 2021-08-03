@@ -10,11 +10,11 @@ find_package(Protobuf)
 set(golden_GOLDEN_STORAGE_PATH "${CMAKE_SOURCE_DIR}/tests/GOLDEN/" CACHE PATH "Path where golds are stored")
 
 configure_file(
-        "${PROJECT_SOURCE_DIR}/include/Config.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/Config.hpp"
+        "${PROJECT_SOURCE_DIR}/include/golden/Config.hpp.in"
+        "${PROJECT_BINARY_DIR}/include/golden/Config.hpp"
 )
 
-add_library(golden INTERFACE include/Tester.hpp)
+add_library(golden INTERFACE include/Golden.hpp)
 #target_include_directories(golden INTERFACE libprotobuf)
 #target_link_libraries(golden INTERFACE libprotobuf)
 target_include_directories(golden INTERFACE ${Protobuf_INCLUDE_DIRS} ${PROJECT_BINARY_DIR}/include)
