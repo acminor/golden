@@ -16,7 +16,7 @@ namespace golden
         class Writer
         {
           public:
-            template <typename T, typename GoldenKey> inline int write(GoldenKey key, T object)
+            template <typename GoldenKey> inline int write(GoldenKey key, const typename GoldenKey::MessageType object)
             {
                 std::string buffer;
                 object.SerializeToString(&buffer);

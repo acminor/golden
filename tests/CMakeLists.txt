@@ -6,6 +6,7 @@ add_executable(golden_tests)
 target_sources(golden_tests
         PRIVATE
         GoldenTests.cpp
+        ProtobufSilver.cpp
         ProtobufComparerTests.cpp
         ProtobufReaderTests.cpp
         ProtobufWriterTests.cpp

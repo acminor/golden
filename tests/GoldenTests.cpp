@@ -10,7 +10,7 @@
 
 #include "GoldenTests.pb.h"
 
-TypedGoldenKey(IntegrationTest);
+TypedGoldenKey(IntegrationTest, golden_tests::IntWrapper);
 TEST(GoldenTests, IntegrationTest)
 {
     namespace fs = std::filesystem;

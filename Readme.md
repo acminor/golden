@@ -23,4 +23,28 @@ including handling floating-point error.
 
 ## Examples
 
-See [tests/GoldenTests.cpp](tests/GoldenTests.cpp) for an example of how the library is used.
+See [tests/GoldenTests.cpp](tests/GoldenTests.cpp) for an example of how the golden library is used.
+
+See [tests/ProtobufSilver.cpp](tests/ProtobufSilver.cpp) for an example of how the silver sub-library is used.
+
+# Silver
+
+Silver is an analogue to Golden except instead of testing against a value it stores a value to
+used as input for a test later.
+
+It is probably best to give a use case example.
+
+## Use Case
+
+Say you have a function that is called by another function during the run of the program.
+Suppose that function relies on inputs (potentially local, global, etc.) from earlier in the
+program. If it is legacy code, you may not know what inputs to said function are valid inputs
+for a unit test; however, we still want to unit test. You can use Silver to record the inputs
+to that function during a program run. Afterwards, this input becomes your "silver".
+
+When we want to unit test the function, we can "desilver" the silver into the program state.
+Now, we can call the function as it has been called previously.
+
+In combination with golden, we can record a functions input and output for a program run at some
+set version. Then as we refactor, etc. we can test our functions with the "silver" input
+against the "gold" we have previously set.

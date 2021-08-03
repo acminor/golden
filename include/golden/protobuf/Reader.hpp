@@ -14,7 +14,7 @@ namespace golden
         class Reader
         {
           public:
-            template <typename T, typename GoldenKey> inline int read(GoldenKey key, T &object)
+            template <typename GoldenKey> inline int read(GoldenKey key, typename GoldenKey::MessageType &object)
             {
                 auto in = GoldenUtility::ReadFromGolden(key);
 

@@ -79,16 +79,32 @@ namespace golden
         }
     };
 
-#define TypedGoldenKey(NAME)                                                                                           \
-    class NAME                                                                                                         \
-    {                                                                                                                  \
-      public:                                                                                                          \
-        inline std::string getPath()                                                                                   \
-        {                                                                                                              \
-            using namespace golden;                                                                                    \
-            return GoldenKeyUtility::getPath(#NAME);                                                                   \
-        }                                                                                                              \
-    }
+    template <const char *Path, typename MsgType> class GoldenKeyType
+    {
+      public:
+        using MessageType = MsgType;
+        static inline std::string getPath()
+        {
+            using namespace golden;
+            return GoldenKeyUtility::getPath(Path);
+        }
+    };
+
+#define TypedGoldenKeyEmptyArg
+
+#define TypedGoldenKeyNameName(NAME, PREFIX, POSTFIX) PREFIX##NAME##POSTFIX
+
+#define TypedGoldenKeyName(NAME, PREFIX, POSTFIX) const char TypedGoldenKeyNameName(NAME, PREFIX, POSTFIX)[] = #NAME
+
+#define TypedGoldenKeyType(NAME, PREFIX, POSTFIX, MESSAGE_TYPE)                                                        \
+    using NAME = golden::GoldenKeyType<TypedGoldenKeyNameName(NAME, PREFIX, POSTFIX), MESSAGE_TYPE>
+
+#define TypedGoldenKeyWithPrefixPostfix(NAME, PREFIX, POSTFIX, MESSAGE_TYPE)                                           \
+    TypedGoldenKeyName(NAME, PREFIX, POSTFIX);                                                                         \
+    TypedGoldenKeyType(NAME, PREFIX, POSTFIX, MESSAGE_TYPE);
+
+#define TypedGoldenKey(NAME, MESSAGE_TYPE)                                                                             \
+    TypedGoldenKeyWithPrefixPostfix(NAME, TypedGoldenKeyEmptyArg, Name, MESSAGE_TYPE)
 
     class GoldenUtility
     {

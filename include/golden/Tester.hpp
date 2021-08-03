@@ -16,12 +16,13 @@ namespace golden
         {
         }
 
-        template <typename GoldenKey, typename T> inline GoldenResult _validate(GoldenKey key, const T result)
+        template <typename GoldenKey>
+        inline GoldenResult _validate(GoldenKey key, const typename GoldenKey::MessageType result)
         {
             auto output = GoldenResult();
             if (GoldenUtility::GoldenExists(key))
             {
-                T golden;
+                typename GoldenKey::MessageType golden;
                 m_reader.read(key, golden);
 
                 auto compareResult = m_comparer.compare(golden, result);
@@ -54,7 +55,8 @@ namespace golden
         /**
          * Validates that two fields are equal
          */
-        template <typename GoldenKey, typename T> inline GoldenResult validate(GoldenKey key, const T result)
+        template <typename GoldenKey>
+        inline GoldenResult validate(GoldenKey key, const typename GoldenKey::MessageType result)
         {
             return m_testerBase._validate(key, result);
         }
@@ -62,7 +64,7 @@ namespace golden
         /**
          * Require operates like validate but throws an exception.
          */
-        template <typename GoldenKey, typename T> inline void require(GoldenKey key, const T result)
+        template <typename GoldenKey> inline void require(GoldenKey key, const typename GoldenKey::MessageType result)
         {
             auto compareResult = m_testerBase._validate(key, result);
 

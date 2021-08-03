@@ -11,7 +11,7 @@
 
 #include "GoldenTests.pb.h"
 
-TypedGoldenKey(FileThatDoesNotExist);
+TypedGoldenKey(FileThatDoesNotExist, golden_tests::IntWrapper);
 TEST(ProtobufReader, FileDoesNotExist)
 {
     auto reader = golden::protobuf::Reader();
@@ -20,7 +20,7 @@ TEST(ProtobufReader, FileDoesNotExist)
     ASSERT_ANY_THROW(reader.read(FileThatDoesNotExist(), value));
 }
 
-TypedGoldenKey(FileThatDoesExist);
+TypedGoldenKey(FileThatDoesExist, golden_tests::IntWrapper);
 TEST(ProtobufReader, FileExists)
 {
     std::ofstream outFile(golden::GoldenUtility::PathToGolden(FileThatDoesExist()));

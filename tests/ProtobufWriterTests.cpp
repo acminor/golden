@@ -11,7 +11,7 @@
 
 #include "GoldenTests.pb.h"
 
-TypedGoldenKey(WriteThenReadNonExistingFile);
+TypedGoldenKey(WriteThenReadNonExistingFile, golden_tests::IntWrapper);
 TEST(ProtobufWriter, WriteThenReadNonExistingFile)
 {
     using namespace std;
@@ -34,7 +34,7 @@ TEST(ProtobufWriter, WriteThenReadNonExistingFile)
     ASSERT_EQ(a.value(), b.value());
 }
 
-TypedGoldenKey(WriteThenReadExistingFile);
+TypedGoldenKey(WriteThenReadExistingFile, golden_tests::IntWrapper);
 TEST(ProtobufWriter, WriteThenReadExistingFile)
 {
     using namespace std;
