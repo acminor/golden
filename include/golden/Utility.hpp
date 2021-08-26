@@ -114,7 +114,7 @@ namespace golden
             if (!is_directory(GOLDEN_PATH))
                 create_directory(GOLDEN_PATH);
 
-            std::ofstream out(PathToGolden(key));
+            std::ofstream out(PathToGolden(key), std::ofstream::binary);
             out << buffer;
             out.flush();
             out.close();
@@ -125,7 +125,7 @@ namespace golden
             if (!std::filesystem::exists(PathToGolden(key)))
                 throw "TODO implement proper exception";
 
-            std::ifstream in(PathToGolden(key), std::ios_base::in | std::ios_base::binary);
+            std::ifstream in(PathToGolden(key), std::ios_base::binary);
             return in;
         }
 
