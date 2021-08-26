@@ -13,7 +13,5 @@ target_sources(golden_tests
         ${golden_tests_SRCS}
         ${golden_tests_INCLUDES})
 target_include_directories(golden_tests
-        PRIVATE ${GTEST_INCLUDE_DIR} ../include ${CMAKE_BINARY_DIR}/tests ${CMAKE_BINARY_DIR}/include)
-target_link_libraries(golden_tests PRIVATE gtest gtest_main)
-target_include_directories(golden_tests PRIVATE ${Protobuf_INCLUDE_DIRS})
-target_link_libraries(golden_tests PRIVATE ${Protobuf_LIBRARIES})
+        PRIVATE ${GTEST_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/tests)
+target_link_libraries(golden_tests PRIVATE golden gtest gtest_main)

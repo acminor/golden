@@ -3,21 +3,23 @@ project(golden VERSION 0.2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(protobuf_BUILD_TESTS OFF)
-#add_subdirectory(./libs/protobuf/cmake)
 find_package(Protobuf)
 
-set(golden_GOLDEN_STORAGE_PATH "${CMAKE_SOURCE_DIR}/tests/GOLDEN/" CACHE PATH "Path where golds are stored")
-
-configure_file(
-        "${PROJECT_SOURCE_DIR}/include/golden/Config.hpp.in"
-        "${PROJECT_BINARY_DIR}/include/golden/Config.hpp"
-)
-
 add_library(golden INTERFACE include/Golden.hpp)
-#target_include_directories(golden INTERFACE libprotobuf)
-#target_link_libraries(golden INTERFACE libprotobuf)
-target_include_directories(golden INTERFACE ${Protobuf_INCLUDE_DIRS} ${PROJECT_BINARY_DIR}/include)
+target_sources(golden
+    INTERFACE
+       include/Golden.hpp
+       include/golden/Config.hpp
+       include/golden/Tester.hpp
+       include/golden/Utility.hpp
+       include/golden/protobuf/Comparer.hpp
+       include/golden/protobuf/Reader.hpp
+       include/golden/protobuf/Tester.hpp
+       include/golden/protobuf/Writer.hpp
+       include/golden/silver/Silver.hpp
+       include/golden/silver/SilverPlate.hpp
+       include/golden/silver/protobuf/SilverPlate.hpp)
+target_include_directories(golden INTERFACE ${Protobuf_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(golden INTERFACE ${Protobuf_LIBRARIES})
 
 enable_testing()

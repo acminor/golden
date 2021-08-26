@@ -5,6 +5,8 @@
 #ifndef GOLDEN_GOLDEN_HPP
 #define GOLDEN_GOLDEN_HPP
 
+#include "golden/Config.hpp"
+
 #include "golden/silver/Silver.hpp"
 
 #include "golden/Utility.hpp"
