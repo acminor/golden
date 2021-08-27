@@ -2,8 +2,8 @@
 // Created by austin on 8/2/21.
 //
 
-#include <fstream>
 #include <filesystem>
+#include <fstream>
 
 #include "gtest/gtest.h"
 
@@ -31,6 +31,28 @@ TEST(ProtobufReader, FileExists)
     auto value = golden_tests::IntWrapper();
 
     ASSERT_NO_THROW(reader.read(FileThatDoesExist(), value));
+}
+
+TypedGoldenKey(FileThatDoesNotExistZlib, golden_tests::IntWrapper);
+TEST(ProtobufReaderZlib, FileDoesNotExist)
+{
+    auto reader = golden::protobuf::Reader();
+    auto value = golden_tests::IntWrapper();
+
+    ASSERT_ANY_THROW(reader.read(FileThatDoesNotExistZlib(), value));
+}
+
+TypedGoldenKey(FileThatDoesExistZlib, golden_tests::IntWrapper);
+TEST(ProtobufReaderZlib, FileExists)
+{
+    std::ofstream outFile(golden::GoldenUtility::PathToGolden(FileThatDoesExistZlib()));
+    outFile.flush();
+    outFile.close();
+
+    auto reader = golden::protobuf::Reader();
+    auto value = golden_tests::IntWrapper();
+
+    ASSERT_NO_THROW(reader.read(FileThatDoesExistZlib(), value));
 }
 
 // TODO implement logic and test
