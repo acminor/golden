@@ -4,16 +4,21 @@ package golden_tests;
 
 message IntWrapper
 {
-    int32 value = 1;
+  int32 value = 1;
 }
 
 message FloatWrapper
 {
-    float value = 1;
+  float value = 1;
 }
 
 message IntPairWrapper
 {
-    int32 value = 1;
-    int32 value2 = 2;
+  int32 value = 1;
+  int32 value2 = 2;
+}
+
+message IntArray
+{
+  repeated int32 data = 1;
 }
