@@ -27,6 +27,7 @@ namespace golden
         using IsMessageType = std::enable_if_t<std::is_base_of_v<google::protobuf::Message, Message>, bool>;
 
         template <int zlibCompressionLevel, bool isFileLockingEnabled> class WriterZlib
+        class WriterZlib
         {
           public:
             WriterZlib() : m_isFileLockingEnabled(isFileLockingEnabled), m_compressionLevel(zlibCompressionLevel)
