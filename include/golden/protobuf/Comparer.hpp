@@ -20,6 +20,7 @@ namespace golden
             inline Comparer() : m_messageDifferencer(), m_fieldComparator()
             {
                 m_fieldComparator.set_float_comparison(DefaultFieldComparator::APPROXIMATE);
+                m_fieldComparator.set_treat_nan_as_equal(true); // TODO needs unittest
                 m_messageDifferencer.set_field_comparator(&m_fieldComparator);
                 m_messageDifferencer.set_message_field_comparison(MessageDifferencer::EQUAL);
                 m_messageDifferencer.set_scope(MessageDifferencer::FULL);

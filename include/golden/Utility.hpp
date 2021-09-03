@@ -131,13 +131,18 @@ namespace golden
       public:
         template <typename GoldenKey> inline static void WriteToGolden(GoldenKey key, const std::string &buffer)
         {
-            if (!is_directory(GOLDEN_PATH))
-                create_directory(GOLDEN_PATH);
+            InitGoldenDirectory();
 
             std::ofstream out(PathToGolden(key), std::ofstream::binary);
             out << buffer;
             out.flush();
             out.close();
+        }
+
+        static void InitGoldenDirectory()
+        {
+            if (!is_directory(GOLDEN_PATH))
+                create_directory(GOLDEN_PATH);
         }
 
         template <typename GoldenKey> inline static std::ifstream ReadFromGolden(GoldenKey key)
