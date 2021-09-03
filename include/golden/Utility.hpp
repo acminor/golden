@@ -106,18 +106,43 @@ namespace golden
 #define TypedGoldenKey(NAME, MESSAGE_TYPE)                                                                             \
     TypedGoldenKeyWithPrefixPostfix(NAME, TypedGoldenKeyEmptyArg, Name, MESSAGE_TYPE)
 
+    // TODO needs unittest
+    template <typename GoldenKeyIn> class GoldenFailureKeyTransformer
+    {
+      public:
+        using GoldenKey = GoldenKeyIn;
+        using MessageType = typename GoldenKey::MessageType;
+        GoldenFailureKeyTransformer(const GoldenKey &key) : m_path(key.getPath())
+        {
+        }
+
+        inline std::string getPath()
+        {
+            using namespace golden;
+            return GoldenKeyUtility::getPath(m_path) + "_failed";
+        }
+
+      private:
+        std::string m_path;
+    };
+
     class GoldenUtility
     {
       public:
         template <typename GoldenKey> inline static void WriteToGolden(GoldenKey key, const std::string &buffer)
         {
-            if (!is_directory(GOLDEN_PATH))
-                create_directory(GOLDEN_PATH);
+            InitGoldenDirectory();
 
             std::ofstream out(PathToGolden(key), std::ofstream::binary);
             out << buffer;
             out.flush();
             out.close();
+        }
+
+        static void InitGoldenDirectory()
+        {
+            if (!is_directory(GOLDEN_PATH))
+                create_directory(GOLDEN_PATH);
         }
 
         template <typename GoldenKey> inline static std::ifstream ReadFromGolden(GoldenKey key)

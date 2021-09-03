@@ -26,7 +26,7 @@ namespace golden
         template <typename Message>
         using IsMessageType = std::enable_if_t<std::is_base_of_v<google::protobuf::Message, Message>, bool>;
 
-        template <int zlibCompressionLevel, bool isFileLockingEnabled>
+        template <int zlibCompressionLevel, bool isFileLockingEnabled> class WriterZlib
         class WriterZlib
         {
           public:
@@ -40,8 +40,8 @@ namespace golden
             template <typename GoldenKey, IsMessageType<typename GoldenKey::MessageType> = true>
             inline int write(GoldenKey key, const typename GoldenKey::MessageType object)
             {
-                std::string buffer;
-                object.SerializeToString(&buffer);
+                // TODO needs unittest for this
+                GoldenUtility::InitGoldenDirectory();
 
                 auto fd = open(GoldenUtility::PathToGolden(key).c_str(), O_CREAT | O_TRUNC | O_WRONLY);
                 fchmod(fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);

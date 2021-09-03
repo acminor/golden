@@ -27,9 +27,15 @@ namespace golden
 
                 auto compareResult = m_comparer.compare(golden, result);
                 if (compareResult == 0)
+                {
                     output.setSuccess();
+                }
                 else
+                {
                     output.setFailure(compareResult);
+                    auto failedKey = GoldenFailureKeyTransformer(key); // TODO needs unittest
+                    m_writer.write(failedKey, result);
+                }
             }
             else
             {
