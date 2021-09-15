@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package protobuf_support;
+
+message dim3
+{
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+}
+
+message float4
+{
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float w = 4;
+}
+
+message int4
+{
+  int32 x = 1;
+  int32 y = 2;
+  int32 z = 3;
+  int32 w = 4;
+}
+
+message float_vec
+{
+  repeated float data = 1;
+}
