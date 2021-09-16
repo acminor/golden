@@ -2,14 +2,14 @@
 // Created by acminor on 9/8/21.
 //
 
-#ifndef GOLDEN_PRIMITIVECONVERTER_HPP
-#define GOLDEN_PRIMITIVECONVERTER_HPP
+#ifndef GOLDEN_MIDAS_PRIMITIVECONVERTER_HPP
+#define GOLDEN_MIDAS_PRIMITIVECONVERTER_HPP
 
 #include <midas/ProtobufSupport.pb.h>
-#include <midas/RegisterCudaConverter.hpp>
-#include <vector_types.h>
+#include <midas/cuda/RegisterCudaConverter.hpp>
 
 #include <cuda.h>
+#include <vector_types.h>
 
 namespace midas::cuda::protobuf
 {
@@ -65,4 +65,4 @@ namespace midas::cuda::protobuf
     RegisterCudaConverter1(PrimitiveConverter);
 } // namespace midas::cuda::protobuf
 
-#endif // GOLDEN_PRIMITIVECONVERTER_HPP
+#endif // GOLDEN_MIDAS_PRIMITIVECONVERTER_HPP

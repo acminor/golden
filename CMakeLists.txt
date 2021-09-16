@@ -28,15 +28,14 @@ target_link_libraries(golden INTERFACE ${Protobuf_LIBRARIES})
 add_library(midas INTERFACE include/midas/midas.hpp)
 target_sources(midas
         INTERFACE
-        include/midas/cuda/utility.hpp
         include/midas/cuda/MallocInterop.hpp
-        include/midas/MallocInteropArrayConverter.hpp
-        include/midas/VectorConverter.hpp
-        include/midas/Dim3Converter.hpp
-        include/midas/Float4Converter.hpp
-        include/midas/Int4Converter.hpp
-        include/midas/RegisterCudaConverter.hpp
-        include/midas/CudaConverters.hpp
+        include/midas/cuda/MallocInteropArrayConverter.hpp
+        include/midas/cuda/VectorConverter.hpp
+        include/midas/cuda/Dim3Converter.hpp
+        include/midas/cuda/Float4Converter.hpp
+        include/midas/cuda/Int4Converter.hpp
+        include/midas/cuda/RegisterCudaConverter.hpp
+        include/midas/cuda/CudaConverters.hpp
         include/midas/Converters.hpp)
 target_include_directories(midas INTERFACE ${Protobuf_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(midas INTERFACE ${Protobuf_LIBRARIES})

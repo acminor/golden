@@ -2,12 +2,13 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_DIM3CONVERTER_HPP
-#define GOLDEN_DIM3CONVERTER_HPP
+#ifndef GOLDEN_MIDAS_DIM3CONVERTER_HPP
+#define GOLDEN_MIDAS_DIM3CONVERTER_HPP
 
 #include <midas/Converters.hpp>
 #include <midas/ProtobufSupport.pb.h>
-#include <midas/RegisterCudaConverter.hpp>
+#include <midas/cuda/RegisterCudaConverter.hpp>
+
 #include <vector_types.h>
 
 namespace midas::cuda::protobuf
@@ -18,27 +19,6 @@ namespace midas::cuda::protobuf
         template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
         void SerializeBase(const dim3 &in, protobuf_support::dim3 &out, ConvertOptions convertOptions = {})
         {
-            /*
-            static_assert(IsCudaConvertOptions<ConvertOptions>, "Options must be of type CudaConvertOptions");
-
-            dim3 result;
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                result = in;
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMemcpy(&result, &in, sizeof(dim3), cudaMemcpyDeviceToHost);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMemcpyFromSymbol(&result, &in, sizeof(dim3), cudaMemcpyDeviceToHost);
-            }
-
-            out.set_x(result.x);
-            out.set_y(result.y);
-            out.set_z(result.z);
-            */
             this->SerializeBase(in, &out, convertOptions);
         }
 
@@ -91,4 +71,4 @@ namespace midas::cuda::protobuf
     RegisterCudaConverter1(Dim3Converter);
 } // namespace midas::cuda::protobuf
 
-#endif // GOLDEN_DIM3CONVERTER_HPP
+#endif // GOLDEN_MIDAS_DIM3CONVERTER_HPP

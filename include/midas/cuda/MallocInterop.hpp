@@ -2,8 +2,8 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_MALLOCINTEROP_HPP
-#define GOLDEN_MALLOCINTEROP_HPP
+#ifndef GOLDEN_MIDAS_MALLOCINTEROP_HPP
+#define GOLDEN_MIDAS_MALLOCINTEROP_HPP
 
 #include <cuda.h>
 #include <unordered_map>
@@ -33,13 +33,10 @@ __host__ cudaError_t internalCudaFreeRedefine(void *devPtr)
 size_t cudaGetArraySize(void *devPtr)
 {
     auto result = cudaMemoryMappings.find(devPtr);
-
-    // std::cout << result->second << std::endl;
-
     return result != std::end(cudaMemoryMappings) ? result->second : 0;
 }
 
 #define cudaMalloc(DEV_PTR, SIZE) internalCudaMallocRedfine(DEV_PTR, SIZE)
 #define cudaFree(DEV_PTR) internalCudaFreeRedefine(DEV_PTR)
 
-#endif // GOLDEN_MALLOCINTEROP_HPP
+#endif // GOLDEN_MIDAS_MALLOCINTEROP_HPP

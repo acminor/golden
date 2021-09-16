@@ -2,8 +2,8 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_CONVERTERS_HPP
-#define GOLDEN_CONVERTERS_HPP
+#ifndef GOLDEN_MIDAS_CONVERTERS_HPP
+#define GOLDEN_MIDAS_CONVERTERS_HPP
 
 #include <type_traits>
 
@@ -184,4 +184,4 @@ class ExampleConverter : public IConverter<ExampleConverter>
     }
 };
 
-#endif // GOLDEN_CONVERTERS_HPP
+#endif // GOLDEN_MIDAS_CONVERTERS_HPP
