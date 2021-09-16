@@ -2,12 +2,11 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_VECTORCONVERTER_HPP
-#define GOLDEN_VECTORCONVERTER_HPP
+#ifndef GOLDEN_MIDAS_VECTORCONVERTER_HPP
+#define GOLDEN_MIDAS_VECTORCONVERTER_HPP
 
 #include <midas/ProtobufUtility.hpp>
-#include <midas/RegisterCudaConverter.hpp>
-#include <midas/cuda/utility.hpp>
+#include <midas/cuda/RegisterCudaConverter.hpp>
 
 #include <optional>
 #include <type_traits>
@@ -43,31 +42,6 @@ namespace midas::cuda::protobuf
             out = (HostType)in;
         }
     };
-
-    /*
-    template <CudaMemoryOptions MemoryOptions, typename ToProtobufFunction,
-              typename FilledConverter = NoAdditionalConverter>
-    class VectorConverterOptions : CudaConvertOptions<MemoryOptions>
-    {
-      public:
-        using Tag = VectorConverterOptions<CudaMemoryOptions::Host, int(), void>;
-
-        VectorConverterOptions(ToProtobufFunction toProtobufFunction) : m_converter(), m_toProtobuf(toProtobufFunction)
-        {
-        }
-
-        VectorConverterOptions(ToProtobufFunction toProtobufFunction, FilledConverter converter)
-            : m_converter(converter), m_toProtobuf(toProtobufFunction)
-        {
-        }
-
-        friend VectorConverter;
-
-      private:
-        std::optional<FilledConverter> m_converter;
-        ToProtobufFunction m_toProtobuf;
-    };
-    */
 
     class VectorConverter;
     template <CudaMemoryOptions MemoryOptions, typename FilledConverter = NoAdditionalConverter>
@@ -167,4 +141,4 @@ namespace midas::cuda::protobuf
     RegisterCudaConverter1(VectorConverter);
 } // namespace midas::cuda::protobuf
 
-#endif // GOLDEN_VECTORCONVERTER_HPP
+#endif // GOLDEN_MIDAS_VECTORCONVERTER_HPP

@@ -2,8 +2,8 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_PROTOBUFUTILITY_HPP
-#define GOLDEN_PROTOBUFUTILITY_HPP
+#ifndef GOLDEN_MIDAS_PROTOBUFUTILITY_HPP
+#define GOLDEN_MIDAS_PROTOBUFUTILITY_HPP
 
 namespace midas::protobuf
 {
@@ -59,4 +59,4 @@ namespace midas::protobuf
     }
 } // namespace midas::protobuf
 
-#endif // GOLDEN_PROTOBUFUTILITY_HPP
+#endif // GOLDEN_MIDAS_PROTOBUFUTILITY_HPP

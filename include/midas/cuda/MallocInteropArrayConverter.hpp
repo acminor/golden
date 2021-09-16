@@ -2,11 +2,11 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_MALLOCINTEROPARRAYCONVERTER_HPP
-#define GOLDEN_MALLOCINTEROPARRAYCONVERTER_HPP
+#ifndef GOLDEN_MIDAS_MALLOCINTEROPARRAYCONVERTER_HPP
+#define GOLDEN_MIDAS_MALLOCINTEROPARRAYCONVERTER_HPP
 
 #include <midas/Converters.hpp>
-#include <midas/RegisterCudaConverter.hpp>
+#include <midas/cuda/RegisterCudaConverter.hpp>
 
 size_t cudaGetArraySize(void *);
 namespace midas::cuda::protobuf
@@ -21,8 +21,6 @@ namespace midas::cuda::protobuf
 
             if (size != 0)
             {
-                // auto vectorData = cudaToVector(data, size);
-                // cudaToProtobuf(vectorData, updateProtobufElement);
                 midas::cuda::protobuf::converters::VectorConverter.Serialize(std::make_pair(in, size), out, options);
             }
             else
@@ -41,4 +39,4 @@ namespace midas::cuda::protobuf
     RegisterCudaConverter1(MallocInteropArrayConverter);
 } // namespace midas::cuda::protobuf
 
-#endif // GOLDEN_MALLOCINTEROPARRAYCONVERTER_HPP
+#endif // GOLDEN_MIDAS_MALLOCINTEROPARRAYCONVERTER_HPP
