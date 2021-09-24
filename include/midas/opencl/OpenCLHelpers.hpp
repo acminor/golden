@@ -10,7 +10,7 @@
 namespace midas::opencl
 {
     template <CudaMemoryOptions MemoryOption, typename T>
-    void CLReadBuffer(const cl_mem_wrapper<T> mem, size_t size, T *data)
+    void CLReadBuffer(const cl_mem_wrapper<T> &mem, size_t size, T *data)
     {
         static_assert(MemoryOption != CudaMemoryOptions::Host, "Cannot use host with cl_mem_wrapper.");
         static_assert(MemoryOption != CudaMemoryOptions::Symbol, "Symbol memory on OpenCL is not yet supported.");
@@ -24,13 +24,13 @@ namespace midas::opencl
     }
 
     template <CudaMemoryOptions MemoryOption, typename T>
-    void CLReadBuffer(cl_mem_wrapper<T> mem, T &data)
+    void CLReadBuffer(const cl_mem_wrapper<T> &mem, T &data)
     {
         CLReadBuffer<MemoryOption>(mem, sizeof(T), &data);
     }
 
     template <CudaMemoryOptions MemoryOption, typename T>
-    void CLWriteBuffer(cl_mem_wrapper<T> mem, size_t size, const T *data)
+    void CLWriteBuffer(cl_mem_wrapper<T> &mem, size_t size, const T *data)
     {
         static_assert(MemoryOption != CudaMemoryOptions::Host, "Cannot use host with cl_mem_wrapper.");
         static_assert(MemoryOption != CudaMemoryOptions::Symbol, "Symbol memory on OpenCL is not yet supported.");

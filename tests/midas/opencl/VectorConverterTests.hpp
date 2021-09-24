@@ -39,62 +39,48 @@ TEST(VectorTests, SerializePrimitive)
         ASSERT_TRUE(messageDifferencer.Compare(serialExpected, serialOut));
     }
 
-    /*
-    auto deviceIn = easyBufferCreate(&hostIn, sizeof(hostIn));
+    serialOut.clear_data();
+    auto deviceIn = easyBufferCreate(hostIn.data(), sizeof(int) * 10);
     Converter.Serialize(
-        cl_mem_wrapper<decltype(hostIn)>(deviceIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        serialOut.mutable_data(), make_options<CudaMemoryOptions::Device>());
+        std::make_pair(cl_mem_wrapper<int>(deviceIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue), 10ul),
+        [&](const auto &x) { serialOut.add_data(x); }, make_options<CudaMemoryOptions::Device>());
 
     {
         std::string result;
         messageDifferencer.ReportDifferencesToString(&result);
         ASSERT_TRUE(messageDifferencer.Compare(serialExpected, serialOut)) << result << std::endl;
     }
-    */
 }
 
-/*
 TEST(VectorTests, DeserializePrimitive)
 {
-    auto Converter = midas::opencl::protobuf::converters::Int4Converter;
+    auto Converter = midas::opencl::protobuf::converters::VectorConverter;
 
     using namespace midas::opencl::protobuf;
     using namespace midas::opencl;
 
-    midas_tests::Int4Wrapper serialIn;
+    midas_tests::IntArray serialIn;
     {
-        auto data = serialIn.mutable_data();
-        data->set_x(1);
-        data->set_y(2);
-        data->set_z(3);
-        data->set_w(4);
+        for (int i = 0; i < 10; i++)
+            serialIn.add_data(i);
     }
 
-    cl_int4 hostExpected;
-    hostExpected.x = 1;
-    hostExpected.y = 2;
-    hostExpected.z = 3;
-    hostExpected.w = 4;
+    std::vector<int> hostExpected(10);
+    for (int i = 0; i < 10; i++)
+        hostExpected[i] = i;
 
-    cl_int4 hostOut;
+    std::vector<int> hostOut;
     Converter.Deserialize(hostOut, serialIn.data(), make_options<CudaMemoryOptions::Host>());
+    ASSERT_EQ(hostOut, hostExpected);
 
-    ASSERT_EQ(hostOut.x, hostExpected.x);
-    ASSERT_EQ(hostOut.y, hostExpected.y);
-    ASSERT_EQ(hostOut.z, hostExpected.z);
-    ASSERT_EQ(hostOut.w, hostExpected.w);
+    std::vector<int> hostZeros(10);
+    for (int i = 0; i < 10; i++)
+        hostZeros[i] = 0;
 
-    cl_int4 hostZeros = {0};
-    auto deviceOut = easyBufferCreate(&hostZeros, sizeof(hostZeros));
-    Converter.Deserialize(
-        cl_mem_wrapper<decltype(hostZeros)>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        serialIn.data(), make_options<CudaMemoryOptions::Device>());
-
-    easyBufferRead(deviceOut, &hostOut, sizeof(hostOut));
-
-    ASSERT_EQ(hostOut.x, hostExpected.x);
-    ASSERT_EQ(hostOut.y, hostExpected.y);
-    ASSERT_EQ(hostOut.z, hostExpected.z);
-    ASSERT_EQ(hostOut.w, hostExpected.w);
+    auto deviceOut = easyBufferCreate(hostZeros.data(), sizeof(int) * 10);
+    Converter.Deserialize(cl_mem_wrapper<decltype(hostZeros)::value_type>(deviceOut, CL_MEM_READ_WRITE,
+                                                                          OpenClData.context, OpenClData.queue),
+                          serialIn.data(), make_options<CudaMemoryOptions::Device>());
+    easyBufferRead(deviceOut, hostOut.data(), sizeof(int) * 10);
+    ASSERT_EQ(hostOut, hostExpected);
 }
-*/
