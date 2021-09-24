@@ -11,10 +11,11 @@
 
 #include "mem.h"
 
-namespace midias
+namespace midias::protobuf
 {
 
-    template <typename ProtobufField, typename ElementTypeIn> struct ProtobufFieldInformation
+    template <typename ProtobufField, typename ElementTypeIn>
+    struct ProtobufFieldInformation
     {
       private:
         inline static constexpr bool IsEquivalentBase()
@@ -36,6 +37,6 @@ namespace midias
         inline static constexpr bool IsEquivalent = IsEquivalentBase();
         using EnableIfEquivalent = std::enable_if_t<IsEquivalent, bool>;
     };
-} // namespace midias
+} // namespace midias::protobuf
 
 #endif // GOLDEN_MIDIAS_HPP

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+import "midas/ProtobufSupport.proto";
+
+package midas_tests;
+
+message FloatArray
+{
+  repeated float data = 1;
+}
+
+message IntArray
+{
+  repeated int32 data = 1;
+}
+
+message Float4Array
+{
+}
+
+message Primatives
+{
+  float f = 1;
+  int64 i = 2;
+}
+
+message Int4Wrapper
+{
+  protobuf_support.pb_int4 data = 1;
+}
+
+message Float4Wrapper
+{
+  protobuf_support.pb_float4 data = 1;
+}
