@@ -24,7 +24,7 @@ namespace midas::opencl
         MidasDefaultContext = std::make_optional(defaultContext);
     }
 
-    template <typename T = void>
+    template <typename T>
     class cl_mem_wrapper
     {
       public:
