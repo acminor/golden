@@ -2,8 +2,7 @@
 // Created by acminor on 9/7/21.
 //
 
-#ifndef GOLDEN_MIDAS_CONVERTERS_HPP
-#define GOLDEN_MIDAS_CONVERTERS_HPP
+#pragma once
 
 #include <type_traits>
 
@@ -138,9 +137,25 @@ class MultiConverter
     }
 };
 
-struct ConvertOptions
+template <typename HostType, typename Converter>
+class ConverterHandle
 {
-    using Tag = std::nullptr_t;
+  public:
+    explicit ConverterHandle(HostType &hostVariable, Converter &converter)
+        : m_hostVariable(hostVariable), m_converter(converter)
+    {
+    }
+
+    template <typename SerialType>
+    ConverterHandle &operator=(const SerialType &serialVariable)
+    {
+        m_hostVariable = m_converter(serialVariable);
+        return *this;
+    }
+
+  private:
+    HostType &m_hostVariable;
+    Converter &m_converter;
 };
 
 enum class CudaMemoryOptions
@@ -150,8 +165,101 @@ enum class CudaMemoryOptions
     Symbol = 2,
 };
 
+template <typename HostType, CudaMemoryOptions memoryOptions>
+class StorageHandle
+{
+  public:
+    explicit StorageHandle(HostType hostVariable) : m_hostVariable(hostVariable)
+    {
+    }
+
+    template <typename SerialType>
+    StorageHandle &operator=(const SerialType &serialVariable)
+    {
+        m_hostVariable = serialVariable;
+        return *this;
+    }
+
+  private:
+    HostType &m_hostVariable;
+};
+
+class IdentityConverter : IConverter<IdentityConverter>
+{
+  public:
+    template <typename HostType, typename SerialType, typename ConvertOptions>
+    void SerializeBase(HostType &a, SerialType &b, ConvertOptions)
+    {
+        b = a;
+    }
+
+    template <typename HostType, typename SerialType, typename ConvertOptions>
+    void DeserializeBase(HostType &a, SerialType &b, ConvertOptions)
+    {
+        a = b;
+    }
+
+    // TODO extract into IFilledConverter
+
+    template <typename HostType, typename SerialType>
+    void Serialize(HostType &a, SerialType &b)
+    {
+        b = a;
+    }
+
+    template <typename HostType, typename SerialType>
+    void Deserialize(HostType &a, SerialType &b)
+    {
+        a = b;
+    }
+};
+
+template <typename ConverterType>
+struct SubConverterOptions
+{
+    static constexpr char Tag[] = "SubConverterOptions";
+
+    explicit SubConverterOptions(ConverterType converter) : Converter(converter)
+    {
+    }
+
+    ConverterType Converter;
+};
+
+template <CudaMemoryOptions memoryOptions, typename ConverterType>
+struct ConvertOptions
+{
+    static constexpr char Tag[] = "ConvertOptions";
+
+    explicit ConvertOptions(SubConverterOptions<ConverterType> subConverterOptions)
+        : SubConverterOpts(subConverterOptions)
+    {
+    }
+
+    static constexpr CudaMemoryOptions MemoryOption = memoryOptions;
+    SubConverterOptions<ConverterType> SubConverterOpts;
+};
+
+template <CudaMemoryOptions memoryOptions>
+auto make_options() -> ConvertOptions<memoryOptions, IdentityConverter>
+{
+    return ConvertOptions<memoryOptions, IdentityConverter>(SubConverterOptions(IdentityConverter()));
+}
+
+template <CudaMemoryOptions memoryOptions, typename ConverterType>
+auto make_options(ConverterType converter) -> ConvertOptions<memoryOptions, ConverterType>
+{
+    return ConvertOptions<memoryOptions, ConverterType>(SubConverterOptions<ConverterType>(converter));
+}
+
+template <CudaMemoryOptions memoryOptions, typename ConverterType>
+auto make_options(SubConverterOptions<ConverterType> converterOpts) -> ConvertOptions<memoryOptions, ConverterType>
+{
+    return ConvertOptions<memoryOptions, ConverterType>(converterOpts);
+}
+
 template <CudaMemoryOptions MemoryOptionIn>
-struct CudaConvertOptions : ConvertOptions
+struct CudaConvertOptions : ConvertOptions<MemoryOptionIn, IdentityConverter>
 {
   public:
     using Tag = CudaConvertOptions<CudaMemoryOptions::Host>;
@@ -183,5 +291,3 @@ class ExampleConverter : public IConverter<ExampleConverter>
     {
     }
 };
-
-#endif // GOLDEN_MIDAS_CONVERTERS_HPP

@@ -2,14 +2,14 @@ syntax = "proto3";
 
 package protobuf_support;
 
-message dim3
+message pb_dim3
 {
   int32 x = 1;
   int32 y = 2;
   int32 z = 3;
 }
 
-message float4
+message pb_float4
 {
   float x = 1;
   float y = 2;
@@ -17,7 +17,7 @@ message float4
   float w = 4;
 }
 
-message int4
+message pb_int4
 {
   int32 x = 1;
   int32 y = 2;
