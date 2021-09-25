@@ -16,6 +16,7 @@ message IntArray
 
 message Float4Array
 {
+  repeated protobuf_support.pb_float4 data = 1;
 }
 
 message Primatives
