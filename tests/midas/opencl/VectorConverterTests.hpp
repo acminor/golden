@@ -4,6 +4,7 @@
 
 #include <google/protobuf/util/message_differencer.h>
 #include <gtest/gtest.h>
+#include <midas/opencl/Float4Converter.hpp>
 #include <midas/opencl/OpenCLBase.hpp>
 #include <midas/opencl/OpenCLHelpers.hpp>
 #include <midas/opencl/VectorConverter.hpp>
@@ -83,4 +84,58 @@ TEST(VectorTests, DeserializePrimitive)
                           serialIn.data(), make_options<CudaMemoryOptions::Device>());
     easyBufferRead(deviceOut, hostOut.data(), sizeof(int) * 10);
     ASSERT_EQ(hostOut, hostExpected);
+}
+
+TEST(VectorTests, DeserializeFloat4)
+{
+    auto Converter = midas::opencl::protobuf::converters::VectorConverter;
+
+    using namespace midas::opencl::protobuf;
+    using namespace midas::opencl;
+
+    midas_tests::Float4Array serialIn;
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            auto data = serialIn.add_data();
+            data->set_x(1.5);
+            data->set_y(2.0);
+            data->set_z(3.5);
+            data->set_w(4.0);
+        }
+    }
+
+    std::vector<cl_float4> hostExpected(10);
+    for (int i = 0; i < 10; i++)
+        hostExpected[i] = {1.5, 2.0, 3.5, 4.0};
+
+    std::vector<cl_float4> hostOut;
+    Converter.Deserialize(hostOut, serialIn.data(),
+                          make_options<CudaMemoryOptions::Device>(
+                              FilledConverter(converters::Float4Converter, make_options<CudaMemoryOptions::Host>())));
+    for (int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(hostOut[i].x, hostExpected[i].x);
+        ASSERT_EQ(hostOut[i].y, hostExpected[i].y);
+        ASSERT_EQ(hostOut[i].z, hostExpected[i].z);
+        ASSERT_EQ(hostOut[i].w, hostExpected[i].w);
+    }
+
+    std::vector<cl_float4> hostZeros(10);
+    for (int i = 0; i < 10; i++)
+        hostZeros[i] = {0, 0, 0, 0};
+
+    auto deviceOut = easyBufferCreate(hostZeros.data(), sizeof(cl_float4) * 10);
+    Converter.Deserialize(cl_mem_wrapper<cl_float4>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
+                          serialIn.data(),
+                          make_options<CudaMemoryOptions::Device>(
+                              FilledConverter(converters::Float4Converter, make_options<CudaMemoryOptions::Host>())));
+    easyBufferRead(deviceOut, hostOut.data(), sizeof(cl_float4) * 10);
+    for (int i = 0; i < 10; i++)
+    {
+        ASSERT_EQ(hostOut[i].x, hostExpected[i].x);
+        ASSERT_EQ(hostOut[i].y, hostExpected[i].y);
+        ASSERT_EQ(hostOut[i].z, hostExpected[i].z);
+        ASSERT_EQ(hostOut[i].w, hostExpected[i].w);
+    }
 }
