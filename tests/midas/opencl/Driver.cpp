@@ -6,6 +6,7 @@
 
 #include <midas/opencl/MallocInterop.hpp>
 
+#include <opencl/Dim3ConverterTests.hpp>
 #include <opencl/Float4ConverterTests.hpp>
 #include <opencl/Int4ConverterTests.hpp>
 #include <opencl/MallocInteropTestsTests.hpp>
