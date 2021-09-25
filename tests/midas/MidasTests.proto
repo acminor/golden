@@ -33,3 +33,8 @@ message Float4Wrapper
 {
   protobuf_support.pb_float4 data = 1;
 }
+
+message Dim3Wrapper
+{
+  protobuf_support.pb_dim3 data = 1;
+}
