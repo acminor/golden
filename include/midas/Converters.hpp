@@ -291,3 +291,19 @@ class ExampleConverter : public IConverter<ExampleConverter>
     {
     }
 };
+
+class ConverterException : public std::exception
+{
+  public:
+    explicit ConverterException(std::string message) : m_message(message)
+    {
+    }
+
+    const char *what() const noexcept override
+    {
+        return m_message.c_str();
+    }
+
+  private:
+    std::string m_message;
+};
