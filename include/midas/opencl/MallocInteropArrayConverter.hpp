@@ -21,19 +21,15 @@ namespace midas::opencl::protobuf
             auto size = openclGetArraySize(in.m_mem) / sizeof(HostType);
 
             if (size != 0)
-            {
                 converters::VectorConverter.Serialize(std::make_pair(in, size), out, options);
-            }
             else
-            {
-                throw "Ahhh, using memory buffer without size and not tracked";
-            }
+                throw ConverterException("Ahhh, using memory buffer without size and not tracked");
         }
 
         template <typename HostType, typename SerialType, typename ConvertOptions>
         void DeserializeBase(HostType, SerialType, ConvertOptions)
         {
-            throw "Not implemented";
+            throw ConverterException("Not implemented");
         }
     };
 
