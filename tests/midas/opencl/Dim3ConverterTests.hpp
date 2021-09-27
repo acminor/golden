@@ -13,6 +13,8 @@
 
 TEST(Dim3Tests, Serialize)
 {
+    InitializeOpenCL();
+
     auto Converter = midas::opencl::protobuf::converters::Dim3Converter;
 
     using namespace midas::opencl::protobuf;
@@ -51,6 +53,8 @@ TEST(Dim3Tests, Serialize)
 
 TEST(Dim3Tests, Deserialize)
 {
+    InitializeOpenCL();
+
     auto Converter = midas::opencl::protobuf::converters::Dim3Converter;
 
     using namespace midas::opencl::protobuf;
@@ -72,8 +76,7 @@ TEST(Dim3Tests, Deserialize)
     for (int i = 0; i < 3; i++)
         ASSERT_EQ(hostOut[i], hostExpected[i]);
 
-    size_t hostZeros[] = {0, 0, 0};
-    auto deviceOut = easyBufferCreate(&hostZeros, sizeof(hostZeros));
+    cl_mem deviceOut;
     Converter.Deserialize(cl_mem_wrapper<size_t>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
                           serialIn.data(), make_options<CudaMemoryOptions::Device>());
 

@@ -40,7 +40,7 @@ namespace midas::opencl
             auto commandQueue = GetProperCommandQueue(mem);
             cl_int err;
 
-            clCreateBuffer(context, mem.m_flags, size, nullptr, &err);
+            mem.m_mem = clCreateBuffer(context, mem.m_flags, size, nullptr, &err);
             clEnqueueWriteBuffer(commandQueue, mem.m_mem, true, 0, size, (void *)data, 0, nullptr, nullptr);
             clFlush(commandQueue);
             clFinish(commandQueue);
