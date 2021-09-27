@@ -55,6 +55,8 @@ TEST(PrimitiveTests, Serialize)
 
 TEST(PrimitiveTests, Deserialize)
 {
+    InitializeOpenCL();
+
     auto Converter = midas::opencl::protobuf::converters::PrimitiveConverter;
 
     using namespace midas::opencl::protobuf;
@@ -76,16 +78,14 @@ TEST(PrimitiveTests, Deserialize)
     ASSERT_EQ(hostFloatOut, hostFloatExpected);
     ASSERT_EQ(hostLongOut, hostLongExpected);
 
-    float hostFloatZero = 0.0;
-    long hostLongZero = 0;
-    auto deviceFloatOut = easyBufferCreate(&hostFloatZero, sizeof(hostFloatZero));
-    auto deviceLongOut = easyBufferCreate(&hostLongZero, sizeof(hostLongZero));
+    cl_mem deviceFloatOut;
+    cl_mem deviceLongOut;
     Converter.Deserialize(
-        cl_mem_wrapper<decltype(hostLongZero)>(deviceLongOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
+        cl_mem_wrapper<decltype(hostLongOut)>(deviceLongOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
         serialIn.i(), make_options<CudaMemoryOptions::Device>());
-    Converter.Deserialize(cl_mem_wrapper<decltype(hostFloatZero)>(deviceFloatOut, CL_MEM_READ_WRITE, OpenClData.context,
-                                                                  OpenClData.queue),
-                          serialIn.f(), make_options<CudaMemoryOptions::Device>());
+    Converter.Deserialize(
+        cl_mem_wrapper<decltype(hostFloatOut)>(deviceFloatOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
+        serialIn.f(), make_options<CudaMemoryOptions::Device>());
 
     easyBufferRead(deviceFloatOut, &hostFloatOut, sizeof(hostFloatOut));
     easyBufferRead(deviceLongOut, &hostLongOut, sizeof(hostLongOut));

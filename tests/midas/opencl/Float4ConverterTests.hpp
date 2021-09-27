@@ -57,6 +57,8 @@ TEST(Float4Tests, Serialize)
 
 TEST(Float4Tests, Deserialize)
 {
+    InitializeOpenCL();
+
     auto Converter = midas::opencl::protobuf::converters::Float4Converter;
 
     using namespace midas::opencl::protobuf;
@@ -85,10 +87,9 @@ TEST(Float4Tests, Deserialize)
     ASSERT_EQ(hostOut.z, hostExpected.z);
     ASSERT_EQ(hostOut.w, hostExpected.w);
 
-    cl_float4 hostZeros = {0};
-    auto deviceOut = easyBufferCreate(&hostZeros, sizeof(hostZeros));
+    cl_mem deviceOut;
     Converter.Deserialize(
-        cl_mem_wrapper<decltype(hostZeros)>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
+        cl_mem_wrapper<decltype(hostOut)>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
         serialIn.data(), make_options<CudaMemoryOptions::Device>());
 
     easyBufferRead(deviceOut, &hostOut, sizeof(hostOut));

@@ -28,6 +28,8 @@ TEST(MallocInterop, GeneralTests)
 
 TEST(MallocInterop, Serialize)
 {
+    InitializeOpenCL();
+
     auto Converter = midas::opencl::protobuf::converters::MallocInteropArrayConverter;
 
     using namespace midas::opencl::protobuf;

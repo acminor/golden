@@ -46,4 +46,9 @@ namespace midas::opencl
         OptionalContext m_context;
         OptionalQueue m_commandQueue;
     };
+
+    template <typename T>
+    using CLMemTypeFromPointer = std::remove_pointer_t<T>;
+
+#define CLMemTypeFromPointer(ARG) CLMemTypeFromPointer<decltype(ARG)>
 } // namespace midas::opencl
