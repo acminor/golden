@@ -54,6 +54,17 @@ target_include_directories(midas_opencl_tests
         ${CMAKE_SOURCE_DIR}/tests/midas)
 target_link_libraries(midas_opencl_tests PRIVATE midas gtest gtest_main protobuf_support OpenCL)
 
+add_executable(midas_cuda_tests)
+target_sources(midas_cuda_tests
+        PRIVATE
+        midas/cuda/Driver.cu)
+target_include_directories(midas_cuda_tests
+        PRIVATE
+        ${CMAKE_BINARY_DIR}/include
+        ${CMAKE_SOURCE_DIR}/tests/midas)
+target_link_libraries(midas_cuda_tests PRIVATE midas gtest gtest_main protobuf_support)
+
 find_package(GTest)
 gtest_discover_tests(golden_tests TEST_PREFIX Golden:)
 gtest_discover_tests(midas_opencl_tests TEST_PREFIX Midas:OpenCL:)
+gtest_discover_tests(midas_cuda_tests TEST_PREFIX Midas:Cuda:)

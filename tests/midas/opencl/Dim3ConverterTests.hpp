@@ -32,7 +32,7 @@ TEST(Dim3Tests, Serialize)
     size_t hostIn[] = {1, 2, 3};
 
     midas_tests::Dim3Wrapper serialOut;
-    Converter.Serialize(dim3(hostIn), serialOut.mutable_data(), make_options<CudaMemoryOptions::Host>());
+    Converter.Serialize(dim3(hostIn), serialOut.mutable_data(), make_options<MemoryOptions::Host>());
 
     {
         std::string result;
@@ -42,7 +42,7 @@ TEST(Dim3Tests, Serialize)
 
     auto deviceIn = easyBufferCreate(&hostIn, sizeof(hostIn));
     Converter.Serialize(cl_mem_wrapper<size_t>(deviceIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-                        serialOut.mutable_data(), make_options<CudaMemoryOptions::Device>());
+                        serialOut.mutable_data(), make_options<MemoryOptions::Device>());
 
     {
         std::string result;
@@ -71,14 +71,14 @@ TEST(Dim3Tests, Deserialize)
     size_t hostExpected[] = {1, 2, 3};
 
     size_t hostOut[3];
-    Converter.Deserialize(dim3Ref(hostOut), serialIn.data(), make_options<CudaMemoryOptions::Host>());
+    Converter.Deserialize(dim3Ref(hostOut), serialIn.data(), make_options<MemoryOptions::Host>());
 
     for (int i = 0; i < 3; i++)
         ASSERT_EQ(hostOut[i], hostExpected[i]);
 
     cl_mem deviceOut;
     Converter.Deserialize(cl_mem_wrapper<size_t>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-                          serialIn.data(), make_options<CudaMemoryOptions::Device>());
+                          serialIn.data(), make_options<MemoryOptions::Device>());
 
     easyBufferRead(deviceOut, &hostOut, sizeof(hostOut));
 

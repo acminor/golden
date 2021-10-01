@@ -15,15 +15,15 @@
 TEST(MallocInterop, GeneralTests)
 {
     std::vector<int> exampleData(100);
-    auto len10Data = easyBufferCreate(exampleData.data(), 10);
+    auto len10Data = easyBufferCreate(exampleData.data(), 10 * sizeof(int));
 
-    auto len20Data = easyBufferCreate(exampleData.data(), 20);
+    auto len20Data = easyBufferCreate(exampleData.data(), 20 * sizeof(int));
 
-    auto len1Data = easyBufferCreate(exampleData.data(), 1);
+    auto len1Data = easyBufferCreate(exampleData.data(), sizeof(int));
 
-    ASSERT_EQ(openclGetArraySize(len10Data), 10);
-    ASSERT_EQ(openclGetArraySize(len20Data), 20);
-    ASSERT_EQ(openclGetArraySize(len1Data), 1);
+    ASSERT_EQ(openclGetArraySize(len10Data), 10 * sizeof(int));
+    ASSERT_EQ(openclGetArraySize(len20Data), 20 * sizeof(int));
+    ASSERT_EQ(openclGetArraySize(len1Data), sizeof(int));
 }
 
 TEST(MallocInterop, Serialize)
@@ -47,10 +47,10 @@ TEST(MallocInterop, Serialize)
         hostIn[i] = i;
 
     midas_tests::IntArray serialOut;
-    auto deviceIn = easyBufferCreate(hostIn.data(), sizeof(int) * 10);
+    auto deviceIn = easyBufferCreate(hostIn.data(), 10 * sizeof(int));
     Converter.Serialize(
         cl_mem_wrapper<int>(deviceIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        [&](const auto &x) { serialOut.add_data(x); }, make_options<CudaMemoryOptions::Device>());
+        [&](const auto &x) { serialOut.add_data(x); }, make_options<MemoryOptions::Device>());
 
     {
         std::string result;

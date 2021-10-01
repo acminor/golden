@@ -27,9 +27,9 @@ TEST(PrimitiveTests, Serialize)
     float hostFloatIn = 3.5;
     long hostLongIn = 3;
     Converter.Serialize(
-        hostFloatIn, [&](const auto x) { serialOut.set_f(x); }, make_options<CudaMemoryOptions::Host>());
+        hostFloatIn, [&](const auto x) { serialOut.set_f(x); }, make_options<MemoryOptions::Host>());
     Converter.Serialize(
-        hostLongIn, [&](const auto x) { serialOut.set_i(x); }, make_options<CudaMemoryOptions::Host>());
+        hostLongIn, [&](const auto x) { serialOut.set_i(x); }, make_options<MemoryOptions::Host>());
 
     {
         std::string result;
@@ -41,10 +41,10 @@ TEST(PrimitiveTests, Serialize)
     auto deviceLongIn = easyBufferCreate(&hostLongIn, sizeof(hostLongIn));
     Converter.Serialize(
         cl_mem_wrapper<decltype(hostFloatIn)>(deviceFloatIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        [&](const auto x) { serialOut.set_f(x); }, make_options<CudaMemoryOptions::Device>());
+        [&](const auto x) { serialOut.set_f(x); }, make_options<MemoryOptions::Device>());
     Converter.Serialize(
         cl_mem_wrapper<decltype(hostLongIn)>(deviceLongIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        [&](const auto x) { serialOut.set_i(x); }, make_options<CudaMemoryOptions::Device>());
+        [&](const auto x) { serialOut.set_i(x); }, make_options<MemoryOptions::Device>());
 
     {
         std::string result;
@@ -72,8 +72,8 @@ TEST(PrimitiveTests, Deserialize)
     float hostFloatOut = 3.5;
     long hostLongOut = 3;
 
-    Converter.Deserialize(hostFloatOut, serialIn.f(), make_options<CudaMemoryOptions::Host>());
-    Converter.Deserialize(hostLongOut, serialIn.i(), make_options<CudaMemoryOptions::Host>());
+    Converter.Deserialize(hostFloatOut, serialIn.f(), make_options<MemoryOptions::Host>());
+    Converter.Deserialize(hostLongOut, serialIn.i(), make_options<MemoryOptions::Host>());
 
     ASSERT_EQ(hostFloatOut, hostFloatExpected);
     ASSERT_EQ(hostLongOut, hostLongExpected);
@@ -82,10 +82,10 @@ TEST(PrimitiveTests, Deserialize)
     cl_mem deviceLongOut;
     Converter.Deserialize(
         cl_mem_wrapper<decltype(hostLongOut)>(deviceLongOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        serialIn.i(), make_options<CudaMemoryOptions::Device>());
+        serialIn.i(), make_options<MemoryOptions::Device>());
     Converter.Deserialize(
         cl_mem_wrapper<decltype(hostFloatOut)>(deviceFloatOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
-        serialIn.f(), make_options<CudaMemoryOptions::Device>());
+        serialIn.f(), make_options<MemoryOptions::Device>());
 
     easyBufferRead(deviceFloatOut, &hostFloatOut, sizeof(hostFloatOut));
     easyBufferRead(deviceLongOut, &hostLongOut, sizeof(hostLongOut));

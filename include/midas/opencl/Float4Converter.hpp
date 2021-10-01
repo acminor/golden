@@ -17,7 +17,7 @@ namespace midas::opencl::protobuf
     class Float4Converter : public IConverter<Float4Converter>
     {
       public:
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_mem_wrapper<cl_float4> mem, protobuf_support::pb_float4 *out,
                            ConvertOptions convertOptions)
         {
@@ -26,7 +26,7 @@ namespace midas::opencl::protobuf
             this->SerializeBase(data, out, convertOptions);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_mem_wrapper<cl_float4> mem, protobuf_support::pb_float4 &out,
                            ConvertOptions convertOptions)
         {

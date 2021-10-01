@@ -76,15 +76,15 @@ class FilledConverter
     }
 
     template <typename HostType, typename SerialType>
-    void Serialize(HostType &a, SerialType &b)
+    void Serialize(HostType &&a, SerialType &&b)
     {
-        m_converter.Serialize(a, b, m_converterOptions);
+        m_converter.Serialize(std::forward<HostType>(a), std::forward<SerialType>(b), m_converterOptions);
     }
 
     template <typename HostType, typename SerialType>
-    void Deserialize(HostType &a, SerialType &b)
+    void Deserialize(HostType &&a, SerialType &&b)
     {
-        m_converter.Deserialize(a, b, m_converterOptions);
+        m_converter.Deserialize(std::forward<HostType>(a), std::forward<SerialType>(b), m_converterOptions);
     }
 
   private:
@@ -158,14 +158,42 @@ class ConverterHandle
     Converter &m_converter;
 };
 
-enum class CudaMemoryOptions
+/**
+ * @enum MemoryOptions
+ * @brief Describes the memory allocation/copy options for a converter.
+ */
+enum class MemoryOptions
 {
+    /**
+     * Host memory, no allocation
+     * - different to device memory which is assumed to be unallocated
+     * - this can be used to handle stack variables
+     */
     Host = 0,
+    /**
+     * Device memory, allocation performed
+     * - this will allocate new memory for the device variable
+     */
     Device = 1,
+    /**
+     * Symbol memory, no allocation (constant memory)
+     */
     Symbol = 2,
+    HostAlloc = 3,
+    DeviceNoAlloc = 4,
 };
 
-template <typename HostType, CudaMemoryOptions memoryOptions>
+constexpr bool IsAllocOption(MemoryOptions memoryOptions)
+{
+    return memoryOptions == MemoryOptions::Device || memoryOptions == MemoryOptions::HostAlloc;
+}
+
+constexpr bool IsCopyOnlyOption(MemoryOptions memoryOptions)
+{
+    return !IsAllocOption(memoryOptions);
+}
+
+template <typename HostType, MemoryOptions memoryOptions>
 class StorageHandle
 {
   public:
@@ -187,30 +215,36 @@ class StorageHandle
 class IdentityConverter : IConverter<IdentityConverter>
 {
   public:
-    template <typename HostType, typename SerialType, typename ConvertOptions>
-    void SerializeBase(HostType &a, SerialType &b, ConvertOptions)
+    template <typename HostType, typename SerialType>
+    void SerializeBase(HostType &a, SerialType &b)
     {
         b = a;
     }
 
-    template <typename HostType, typename SerialType, typename ConvertOptions>
-    void DeserializeBase(HostType &a, SerialType &b, ConvertOptions)
+    template <typename HostType, typename SerialType>
+    void DeserializeBase(HostType &a, SerialType &b)
     {
         a = b;
+    }
+
+    template <typename HostType, typename SerialType>
+    void DeserializeBase(HostType *a, SerialType &b)
+    {
+        *a = b;
     }
 
     // TODO extract into IFilledConverter
 
     template <typename HostType, typename SerialType>
-    void Serialize(HostType &a, SerialType &b)
+    void Serialize(HostType &&a, SerialType &&b)
     {
-        b = a;
+        this->DeserializeBase(std::forward<HostType>(a), std::forward<SerialType>(b));
     }
 
     template <typename HostType, typename SerialType>
-    void Deserialize(HostType &a, SerialType &b)
+    void Deserialize(HostType &&a, SerialType &&b)
     {
-        a = b;
+        this->DeserializeBase(std::forward<HostType>(a), std::forward<SerialType>(b));
     }
 };
 
@@ -226,7 +260,7 @@ struct SubConverterOptions
     ConverterType Converter;
 };
 
-template <CudaMemoryOptions memoryOptions, typename ConverterType>
+template <MemoryOptions memoryOptions, typename ConverterType>
 struct ConvertOptions
 {
     static constexpr char Tag[] = "ConvertOptions";
@@ -236,39 +270,46 @@ struct ConvertOptions
     {
     }
 
-    static constexpr CudaMemoryOptions MemoryOption = memoryOptions;
+    static constexpr MemoryOptions MemoryOption = memoryOptions;
     SubConverterOptions<ConverterType> SubConverterOpts;
 };
 
-template <CudaMemoryOptions memoryOptions>
+template <MemoryOptions memoryOptions, MemoryOptions otherMemoryOptions, typename ConverterType>
+auto make_options(const ConvertOptions<otherMemoryOptions, ConverterType> &c)
+    -> ConvertOptions<memoryOptions, ConverterType>
+{
+    return ConvertOptions<memoryOptions, ConverterType>(c.SubConverterOpts);
+}
+
+template <MemoryOptions memoryOptions>
 auto make_options() -> ConvertOptions<memoryOptions, IdentityConverter>
 {
     return ConvertOptions<memoryOptions, IdentityConverter>(SubConverterOptions(IdentityConverter()));
 }
 
-template <CudaMemoryOptions memoryOptions, typename ConverterType>
+template <MemoryOptions memoryOptions, typename ConverterType>
 auto make_options(ConverterType converter) -> ConvertOptions<memoryOptions, ConverterType>
 {
     return ConvertOptions<memoryOptions, ConverterType>(SubConverterOptions<ConverterType>(converter));
 }
 
-template <CudaMemoryOptions memoryOptions, typename ConverterType>
+template <MemoryOptions memoryOptions, typename ConverterType>
 auto make_options(SubConverterOptions<ConverterType> converterOpts) -> ConvertOptions<memoryOptions, ConverterType>
 {
     return ConvertOptions<memoryOptions, ConverterType>(converterOpts);
 }
 
-template <CudaMemoryOptions MemoryOptionIn>
+template <MemoryOptions MemoryOptionIn>
 struct CudaConvertOptions : ConvertOptions<MemoryOptionIn, IdentityConverter>
 {
   public:
-    using Tag = CudaConvertOptions<CudaMemoryOptions::Host>;
-    static constexpr CudaMemoryOptions MemoryOption = MemoryOptionIn;
+    using Tag = CudaConvertOptions<MemoryOptions::Host>;
+    static constexpr MemoryOptions MemoryOption = MemoryOptionIn;
 };
 
 template <typename ConvertOptions>
 static constexpr bool IsCudaConvertOptions =
-    std::is_same_v<CudaConvertOptions<CudaMemoryOptions::Host>, typename ConvertOptions::Tag>;
+    std::is_same_v<CudaConvertOptions<MemoryOptions::Host>, typename ConvertOptions::Tag>;
 
 class ExampleConverter : public IConverter<ExampleConverter>
 {
@@ -278,12 +319,12 @@ class ExampleConverter : public IConverter<ExampleConverter>
     {
         static_assert(IsCudaConvertOptions<ConvertOptions>, "Options must be of type CudaConvertOptions");
 
-        if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
+        if constexpr (ConvertOptions::MemoryOption == MemoryOptions::Host)
             throw 0UL;
-        else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
+        else if constexpr (ConvertOptions::MemoryOption == MemoryOptions::Device)
             throw 1.0f;
 
-        static_assert(ConvertOptions::MemoryOption != CudaMemoryOptions::Symbol, "compile fail");
+        static_assert(ConvertOptions::MemoryOption != MemoryOptions::Symbol, "compile fail");
     }
 
     template <typename HostType, typename SerialType, typename ConvertOptions>
