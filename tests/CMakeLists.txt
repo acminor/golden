@@ -66,5 +66,9 @@ target_link_libraries(midas_cuda_tests PRIVATE midas gtest gtest_main protobuf_s
 
 find_package(GTest)
 gtest_discover_tests(golden_tests TEST_PREFIX Golden:)
+# TODO could make a test for failing the different types of path errors in the code
+# - this is the happy path test only
+gtest_discover_tests(golden_tests TEST_PREFIX Golden:EnvironmentGoldenPath:
+        PROPERTIES ENVIRONMENT GOLDEN_PATH=${CMAKE_BINARY_DIR}/tests/golden-env-var-path-test)
 gtest_discover_tests(midas_opencl_tests TEST_PREFIX Midas:OpenCL:)
 gtest_discover_tests(midas_cuda_tests TEST_PREFIX Midas:Cuda:)

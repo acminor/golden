@@ -5,13 +5,16 @@
 #ifndef GOLDEN_UTILITY_HPP
 #define GOLDEN_UTILITY_HPP
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <variant>
 
 #include "golden/Config.hpp"
 
+namespace fs = std::filesystem;
 namespace golden
 {
     struct GoldenResult
@@ -79,7 +82,8 @@ namespace golden
         }
     };
 
-    template <const char *Path, typename MsgType> class GoldenKeyType
+    template <const char *Path, typename MsgType>
+    class GoldenKeyType
     {
       public:
         using MessageType = MsgType;
@@ -107,12 +111,13 @@ namespace golden
     TypedGoldenKeyWithPrefixPostfix(NAME, TypedGoldenKeyEmptyArg, Name, MESSAGE_TYPE)
 
     // TODO needs unittest
-    template <typename GoldenKeyIn> class GoldenFailureKeyTransformer
+    template <typename GoldenKeyIn>
+    class GoldenFailureKeyTransformer
     {
       public:
         using GoldenKey = GoldenKeyIn;
         using MessageType = typename GoldenKey::MessageType;
-        GoldenFailureKeyTransformer(const GoldenKey &key) : m_path(key.getPath())
+        explicit GoldenFailureKeyTransformer(const GoldenKey &key) : m_path(key.getPath())
         {
         }
 
@@ -129,43 +134,98 @@ namespace golden
     class GoldenUtility
     {
       public:
-        template <typename GoldenKey> inline static void WriteToGolden(GoldenKey key, const std::string &buffer)
+        template <typename GoldenKey>
+        inline static void WriteToGolden(GoldenKey key, const std::string &buffer)
         {
-            InitGoldenDirectory();
-
             std::ofstream out(PathToGolden(key), std::ofstream::binary);
             out << buffer;
             out.flush();
             out.close();
         }
 
-        static void InitGoldenDirectory()
+        template <typename GoldenKey>
+        inline static std::ifstream ReadFromGolden(GoldenKey key)
         {
-            if (!is_directory(GOLDEN_PATH))
-                create_directory(GOLDEN_PATH);
-        }
-
-        template <typename GoldenKey> inline static std::ifstream ReadFromGolden(GoldenKey key)
-        {
-            if (!std::filesystem::exists(PathToGolden(key)))
+            if (!fs::exists(PathToGolden(key)))
                 throw "TODO implement proper exception";
 
             std::ifstream in(PathToGolden(key), std::ios_base::binary);
             return in;
         }
 
-        template <typename GoldenKey> inline static bool GoldenExists(GoldenKey key)
+        template <typename GoldenKey>
+        inline static bool GoldenExists(GoldenKey key)
         {
-            return std::filesystem::exists(PathToGolden(key));
+            return fs::exists(PathToGolden(key));
         }
 
-        template <typename GoldenKey> inline static std::filesystem::path PathToGolden(GoldenKey key)
+        template <typename GoldenKey>
+        inline static fs::path PathToGolden(GoldenKey key)
         {
             return GoldenUtility::GOLDEN_PATH / key.getPath();
         }
 
       private:
-        inline static const std::filesystem::path GOLDEN_PATH = std::filesystem::path(golden_GOLDEN_STORAGE_PATH);
+        inline static fs::path InitGoldenPath() noexcept
+        {
+            auto correctPermissions = [](const fs::path &path) {
+                return (fs::status(path).permissions() & fs::perms::owner_all) != fs::perms::none;
+            };
+
+            try
+            {
+                auto goldenPathEnv = getenv("GOLDEN_PATH");
+
+                fs::path path;
+                if (goldenPathEnv)
+                    path = fs::weakly_canonical(std::filesystem::path(goldenPathEnv));
+                else
+                    path = fs::weakly_canonical(std::filesystem::path(golden_GOLDEN_STORAGE_PATH));
+
+                if (fs::exists(path))
+                {
+                    if (!fs::is_directory(path))
+                    {
+                        std::cout << "Golden path exists and is not a directory." << std::endl;
+                        exit(-1);
+                    }
+                    // TODO not sure how is_directory handles symlinks
+                    else if (correctPermissions(path))
+                    {
+                        return path;
+                    }
+                    else
+                    {
+                        std::cout << "Golden path exists and is a directory, but has the wrong permissions."
+                                  << std::endl;
+                        exit(-1);
+                    }
+                }
+                // only create path if the parent path exists
+                else if (fs::exists(path.parent_path()) && correctPermissions(path.parent_path()))
+                {
+                    // TODO might want something else on Windows
+                    // as per this documentation attributes are not copied on Windows
+                    // https://en.cppreference.com/w/cpp/filesystem/create_directory
+                    //
+                    // - create directory with parent path permissions
+                    create_directory(path, path.parent_path());
+                    return path;
+                }
+                else
+                {
+                    std::cout << "Golden parent path does not exist or has the wrong permissions" << std::endl;
+                    exit(-1);
+                }
+            }
+            catch (...)
+            {
+                std::cout << "Initializing golden storage path failed." << std::endl;
+                exit(-1);
+            }
+        }
+
+        inline static const fs::path GOLDEN_PATH = InitGoldenPath();
     };
 } // namespace golden
 
