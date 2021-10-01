@@ -40,9 +40,6 @@ namespace golden
             template <typename GoldenKey, IsMessageType<typename GoldenKey::MessageType> = true>
             inline int write(GoldenKey key, const typename GoldenKey::MessageType object)
             {
-                // TODO needs unittest for this
-                GoldenUtility::InitGoldenDirectory();
-
                 auto fd = open(GoldenUtility::PathToGolden(key).c_str(), O_CREAT | O_TRUNC | O_WRONLY);
                 fchmod(fd, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
                 if (isFileLockingEnabled)
