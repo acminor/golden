@@ -16,30 +16,11 @@ namespace midas::cuda::protobuf
     class Float4Converter : public IConverter<Float4Converter>
     {
       public:
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
-        void SerializeBase(const float4 &in, protobuf_support::float4 &out, ConvertOptions convertOptions = {})
+        template <typename ConvertOptions>
+        void SerializeBase(const float4 *in, protobuf_support::pb_float4 *out, ConvertOptions convertOptions)
         {
-            this->SerializeBase(in, &out, convertOptions);
-        }
-
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
-        void SerializeBase(const float4 &in, protobuf_support::float4 *out, ConvertOptions convertOptions = {})
-        {
-            static_assert(IsCudaConvertOptions<ConvertOptions>, "Options must be of type CudaConvertOptions");
-
             float4 result;
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                result = in;
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMemcpy(&result, &in, sizeof(float4), cudaMemcpyDeviceToHost);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMemcpyFromSymbol(&result, in, sizeof(float4));
-            }
+            CudaReadBuffer<ConvertOptions::MemoryOption>(in, sizeof(float4), &result);
 
             out->set_x(result.x);
             out->set_y(result.y);
@@ -47,25 +28,18 @@ namespace midas::cuda::protobuf
             out->set_w(result.w);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
-        void DeserializeBase(float4 &out, const protobuf_support::float4 &in, ConvertOptions convertOptions = {})
+        template <typename ConvertOptions>
+        void DeserializeBase(float4 *out, const protobuf_support::pb_float4 &in, ConvertOptions convertOptions)
         {
-            static_assert(IsCudaConvertOptions<ConvertOptions>, "Options must be of type CudaConvertOptions");
-
             float4 result = {in.x(), in.y(), in.z(), in.w()};
+            CudaWriteBuffer<ConvertOptions::MemoryOption>(out, sizeof(float4), &result);
+        }
 
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                out = result;
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMemcpy(&out, &result, sizeof(float4), cudaMemcpyHostToDevice);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMemcpyToSymbol(out, &result, sizeof(float4));
-            }
+        template <typename ConvertOptions>
+        void DeserializeBase(float4 **out, const protobuf_support::pb_float4 &in, ConvertOptions convertOptions)
+        {
+            float4 result = {in.x(), in.y(), in.z(), in.w()};
+            CudaWriteBuffer<ConvertOptions::MemoryOption>(out, sizeof(float4), &result);
         }
     };
 

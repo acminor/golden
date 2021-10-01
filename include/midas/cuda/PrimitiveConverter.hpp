@@ -5,60 +5,56 @@
 #ifndef GOLDEN_MIDAS_PRIMITIVECONVERTER_HPP
 #define GOLDEN_MIDAS_PRIMITIVECONVERTER_HPP
 
+#include <midas/Converters.hpp>
+
 #include <midas/ProtobufSupport.pb.h>
+#include <midas/cuda/CudaHelpers.hpp>
 #include <midas/cuda/RegisterCudaConverter.hpp>
 
-#include <cuda.h>
 #include <vector_types.h>
 
+/**
+ * @namespace midas::cuda::protobuf
+ */
 namespace midas::cuda::protobuf
 {
+    /**
+     * @class PrimitiveConverter
+     * @brief Something
+     */
     class PrimitiveConverter : public IConverter<PrimitiveConverter>
     {
       public:
         template <typename HostType, typename SerialOutFunction,
-                  typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
-        void SerializeBase(const HostType &in, SerialOutFunction out, ConvertOptions convertOptions = {})
+                  typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
+        void SerializeBase(const HostType *in, SerialOutFunction out, ConvertOptions convertOptions = {})
         {
-            static_assert(IsCudaConvertOptions<ConvertOptions>, "Options must be of type CudaConvertOptions");
-
             HostType result;
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                result = in;
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMemcpy(&result, &in, sizeof(HostType), cudaMemcpyDeviceToHost);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMemcpyFromSymbol(&result, in, sizeof(HostType));
-            }
-
+            CudaReadBuffer<ConvertOptions::MemoryOption>(in, sizeof(HostType), &result);
             out(result);
         }
 
+        /**
+         * @note both a HostType& and HostType** are needed
+         *       - the HostType& is for host/symbol side non-allocated memory (globals and stack variables)
+         *       - the HostType** is for everything else
+         */
         template <typename HostType, typename SerialType,
-                  typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
-        void DeserializeBase(HostType &out, const SerialType &in, ConvertOptions convertOptions = {})
+                  typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
+        void DeserializeBase(HostType *out, const SerialType &in, ConvertOptions convertOptions = {})
         {
-            static_assert(IsCudaConvertOptions<ConvertOptions>, "Options must be of type CudaConvertOptions");
-
+            // assures that the serial type can be implicitly converted to the HostType
             HostType result = in;
+            CudaWriteBuffer<ConvertOptions::MemoryOption>(out, sizeof(HostType), &result);
+        }
 
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                out = result;
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMemcpy(&out, &result, sizeof(HostType), cudaMemcpyHostToDevice);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMemcpyToSymbol(out, &result, sizeof(HostType));
-            }
+        template <typename HostType, typename SerialType,
+                  typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
+        void DeserializeBase(HostType **out, const SerialType &in, ConvertOptions convertOptions = {})
+        {
+            // assures that the serial type can be implicitly converted to the HostType
+            HostType result = in;
+            CudaWriteBuffer<ConvertOptions::MemoryOption>(out, sizeof(HostType), &result);
         }
     };
 

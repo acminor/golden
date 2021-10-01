@@ -32,7 +32,7 @@ TEST(VectorTests, SerializePrimitive)
 
     midas_tests::IntArray serialOut;
     Converter.Serialize(
-        hostIn, [&](const auto &x) { serialOut.add_data(x); }, make_options<CudaMemoryOptions::Host>());
+        hostIn, [&](const auto &x) { serialOut.add_data(x); }, make_options<MemoryOptions::Host>());
 
     {
         std::string result;
@@ -44,7 +44,7 @@ TEST(VectorTests, SerializePrimitive)
     auto deviceIn = easyBufferCreate(hostIn.data(), sizeof(int) * 10);
     Converter.Serialize(
         std::make_pair(cl_mem_wrapper<int>(deviceIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue), 10ul),
-        [&](const auto &x) { serialOut.add_data(x); }, make_options<CudaMemoryOptions::Device>());
+        [&](const auto &x) { serialOut.add_data(x); }, make_options<MemoryOptions::Device>());
 
     {
         std::string result;
@@ -128,13 +128,13 @@ TEST(VectorTests, DeserializePrimitive)
         hostExpected[i] = i;
 
     std::vector<int> hostOut;
-    Converter.Deserialize(hostOut, serialIn.data(), make_options<CudaMemoryOptions::Host>());
+    Converter.Deserialize(hostOut, serialIn.data(), make_options<MemoryOptions::Host>());
     ASSERT_EQ(hostOut, hostExpected);
 
     cl_mem deviceOut;
     Converter.Deserialize(cl_mem_wrapper<decltype(hostOut)::value_type>(deviceOut, CL_MEM_READ_WRITE,
                                                                         OpenClData.context, OpenClData.queue),
-                          serialIn.data(), make_options<CudaMemoryOptions::Device>());
+                          serialIn.data(), make_options<MemoryOptions::Device>());
     easyBufferRead(deviceOut, hostOut.data(), sizeof(int) * 10);
     ASSERT_EQ(hostOut, hostExpected);
 }
@@ -166,8 +166,8 @@ TEST(VectorTests, DeserializeFloat4)
 
     std::vector<cl_float4> hostOut;
     Converter.Deserialize(hostOut, serialIn.data(),
-                          make_options<CudaMemoryOptions::Device>(
-                              FilledConverter(converters::Float4Converter, make_options<CudaMemoryOptions::Host>())));
+                          make_options<MemoryOptions::Device>(
+                              FilledConverter(converters::Float4Converter, make_options<MemoryOptions::Host>())));
     for (int i = 0; i < 10; i++)
     {
         ASSERT_EQ(hostOut[i].x, hostExpected[i].x);
@@ -179,8 +179,8 @@ TEST(VectorTests, DeserializeFloat4)
     cl_mem deviceOut;
     Converter.Deserialize(cl_mem_wrapper<cl_float4>(deviceOut, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
                           serialIn.data(),
-                          make_options<CudaMemoryOptions::Device>(
-                              FilledConverter(converters::Float4Converter, make_options<CudaMemoryOptions::Host>())));
+                          make_options<MemoryOptions::Device>(
+                              FilledConverter(converters::Float4Converter, make_options<MemoryOptions::Host>())));
     easyBufferRead(deviceOut, hostOut.data(), sizeof(cl_float4) * 10);
     for (int i = 0; i < 10; i++)
     {

@@ -59,13 +59,13 @@ namespace midas::opencl::protobuf
     class Dim3Converter : public IConverter<Dim3Converter>
     {
       public:
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const dim3 &in, protobuf_support::pb_dim3 &out, ConvertOptions convertOptions = {})
         {
             this->SerializeBase(in, &out, convertOptions);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const dim3 in, protobuf_support::pb_dim3 *out, ConvertOptions convertOptions = {})
         {
             dim3 result;
@@ -76,7 +76,7 @@ namespace midas::opencl::protobuf
             out->set_z(result.z);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_mem_wrapper<size_t> in, protobuf_support::pb_dim3 *out,
                            ConvertOptions convertOptions = {})
         {
@@ -88,7 +88,7 @@ namespace midas::opencl::protobuf
             out->set_z(data[2]);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void DeserializeBase(dim3Ref out, const protobuf_support::pb_dim3 &in, ConvertOptions convertOptions = {})
         {
             out.setFromDim3({(unsigned int)in.x(), (unsigned int)in.y(), (unsigned int)in.z()});

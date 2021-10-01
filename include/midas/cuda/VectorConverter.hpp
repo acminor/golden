@@ -10,65 +10,11 @@
 
 #include <optional>
 #include <type_traits>
+#include <vector>
 
 namespace midas::cuda::protobuf
 {
     using namespace midas::protobuf;
-
-    class NoAdditionalConverter
-    {
-      public:
-        template <typename HostType, typename SerialType>
-        void Serialize(const HostType &in, const SerialType &out) const
-        {
-        }
-
-        template <typename HostType, typename SerialType>
-        void Deserialize(const HostType &in, const SerialType &out) const
-        {
-        }
-
-        template <typename HostType, typename SerialType,
-                  std::enable_if_t<std::is_convertible_v<SerialType, HostType>, bool> = true>
-        void Serialize(const HostType &in, SerialType &out)
-        {
-            out = (HostType)in;
-        }
-
-        template <typename HostType, typename SerialType,
-                  std::enable_if_t<std::is_convertible_v<SerialType, HostType>, bool> = true>
-        void Deserialize(HostType &out, const SerialType &in)
-        {
-            out = (HostType)in;
-        }
-    };
-
-    class VectorConverter;
-    template <CudaMemoryOptions MemoryOptions, typename FilledConverter = NoAdditionalConverter>
-    class VectorConverterOptions : CudaConvertOptions<MemoryOptions>
-    {
-      public:
-        using Tag = VectorConverterOptions<CudaMemoryOptions::Host, void>;
-
-        VectorConverterOptions() : m_converter(FilledConverter{})
-        {
-        }
-
-        VectorConverterOptions(FilledConverter converter) : m_converter(converter)
-        {
-        }
-
-        friend VectorConverter;
-
-      private:
-        FilledConverter m_converter;
-    };
-
-    template <CudaMemoryOptions MemoryOptions, typename FilledConverter = NoAdditionalConverter>
-    VectorConverterOptions<MemoryOptions, FilledConverter> makeVectorConverterOptions(FilledConverter converter = {})
-    {
-        return VectorConverterOptions<MemoryOptions, FilledConverter>(converter);
-    }
 
     class VectorConverter : public IConverter<VectorConverter>
     {
@@ -76,6 +22,8 @@ namespace midas::cuda::protobuf
         template <typename HostType, typename SerialOutFunction, typename ConvertOptions>
         void SerializeBase(const std::vector<HostType> &in, SerialOutFunction out, ConvertOptions options)
         {
+            static_assert(ConvertOptions::MemoryOption == MemoryOptions::Host,
+                          "std::vector support is only for host memory.");
             for (auto x : in)
                 out(x);
         }
@@ -83,58 +31,53 @@ namespace midas::cuda::protobuf
         template <typename HostType, typename SerialOutFunction, typename ConvertOptions>
         void SerializeBase(const std::pair<HostType *, size_t> in, SerialOutFunction out, ConvertOptions options)
         {
-            auto data = in.first;
-            auto length = in.second;
+            const auto data = in.first;
+            const auto length = in.second;
+            std::vector<HostType> dataVector(length);
+            const auto byteSize = length * sizeof(HostType);
 
-            auto dataVector = std::vector<HostType>(length);
-
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                dataVector.insert(data, data + length);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMemcpy((void *)dataVector.data(), (void *)data, length * sizeof(HostType), cudaMemcpyDeviceToHost);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMemcpyFromSymbol((void *)dataVector.data(), (void *)data, length * sizeof(HostType),
-                                     cudaMemcpyDeviceToHost);
-            }
+            CudaReadBuffer<ConvertOptions::MemoryOption>(data, byteSize, dataVector.data());
 
             for (auto x : dataVector)
                 out(x);
         }
 
         template <typename HostType, typename SerialType, typename ConvertOptions>
-        void DeserializeBase(HostType **hostMem, SerialType snapshotField, ConvertOptions options)
+        void DeserializeBase(std::vector<HostType> &in, SerialType snapshotField, ConvertOptions options)
         {
-            std::vector<HostType> host_vector(snapshotField.size());
-            const auto byteSize = host_vector.size() * sizeof(HostType);
+            static_assert(ConvertOptions::MemoryOption == MemoryOptions::Host,
+                          "std::vector support is only for host memory.");
+
+            const auto length = snapshotField.size();
+            in.resize(length);
 
             int i = 0;
             for (const auto &x : snapshotField)
             {
                 HostType temp;
-                options.m_converter.Deserialize(temp, x);
-                host_vector[i++] = temp;
+                options.SubConverterOpts.Converter.Deserialize(&temp, x);
+                in[i++] = temp;
             }
+        }
 
-            if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Host)
-            {
-                *hostMem = malloc(byteSize);
-                memcpy(*hostMem, host_vector.data(), byteSize);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Device)
-            {
-                cudaMalloc((void **)hostMem, byteSize);
-                cudaMemcpy((void *)*hostMem, (void *)host_vector.data(), byteSize, cudaMemcpyHostToDevice);
-            }
-            else if constexpr (ConvertOptions::MemoryOption == CudaMemoryOptions::Symbol)
-            {
-                cudaMalloc((void **)hostMem, byteSize);
-                cudaMemcpyToSymbol((void *)*hostMem, (void *)host_vector.data(), byteSize, cudaMemcpyHostToDevice);
-            }
+        template <typename HostType, typename SerialType, typename ConvertOptions>
+        void DeserializeBase(HostType *hostMem, SerialType snapshotField, ConvertOptions options)
+        {
+            std::vector<HostType> hostVector;
+            this->DeserializeBase(hostVector, snapshotField, make_options<MemoryOptions::Host>(options));
+
+            const auto byteSize = hostVector.size() * sizeof(HostType);
+            CudaWriteBuffer<ConvertOptions::MemoryOption>(hostMem, byteSize, hostVector.data());
+        }
+
+        template <typename HostType, typename SerialType, typename ConvertOptions>
+        void DeserializeBase(HostType **hostMem, SerialType snapshotField, ConvertOptions options)
+        {
+            std::vector<HostType> hostVector;
+            this->DeserializeBase(hostVector, snapshotField, make_options<MemoryOptions::Host>(options));
+
+            const auto byteSize = hostVector.size() * sizeof(HostType);
+            CudaWriteBuffer<ConvertOptions::MemoryOption>(hostMem, byteSize, hostVector.data());
         }
     };
 

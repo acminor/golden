@@ -4,9 +4,9 @@ package protobuf_support;
 
 message pb_dim3
 {
-  int32 x = 1;
-  int32 y = 2;
-  int32 z = 3;
+  uint32 x = 1;
+  uint32 y = 2;
+  uint32 z = 3;
 }
 
 message pb_float4

@@ -9,42 +9,43 @@
 
 namespace midas::opencl
 {
-    template <CudaMemoryOptions MemoryOption, typename T>
+    template <MemoryOptions MemoryOption, typename T>
     void CLReadBuffer(const cl_mem_wrapper<T> &mem, size_t size, T *data)
     {
-        static_assert(MemoryOption != CudaMemoryOptions::Host, "Cannot use host with cl_mem_wrapper.");
-        static_assert(MemoryOption != CudaMemoryOptions::Symbol, "Symbol memory on OpenCL is not yet supported.");
-        if constexpr (MemoryOption == CudaMemoryOptions::Device)
-        {
-            auto commandQueue = GetProperCommandQueue(mem);
-            clEnqueueReadBuffer(commandQueue, mem.m_mem, true, 0, size, (void *)data, 0, nullptr, nullptr);
-            clFlush(commandQueue);
-            clFinish(commandQueue);
-        }
+        static_assert(MemoryOption != MemoryOptions::Host, "Cannot use host with cl_mem_wrapper.");
+        static_assert(MemoryOption != MemoryOptions::Host || MemoryOption != MemoryOptions::HostAlloc,
+                      "Cannot use host with cl_mem_wrapper.");
+        static_assert(MemoryOption != MemoryOptions::Symbol, "Symbol memory on OpenCL is not yet supported.");
+
+        auto commandQueue = GetProperCommandQueue(mem);
+        clEnqueueReadBuffer(commandQueue, mem.m_mem, true, 0, size, (void *)data, 0, nullptr, nullptr);
+        clFlush(commandQueue);
+        clFinish(commandQueue);
     }
 
-    template <CudaMemoryOptions MemoryOption, typename T>
+    template <MemoryOptions MemoryOption, typename T>
     void CLReadBuffer(const cl_mem_wrapper<T> &mem, T &data)
     {
         CLReadBuffer<MemoryOption>(mem, sizeof(T), &data);
     }
 
-    template <CudaMemoryOptions MemoryOption, typename T>
+    template <MemoryOptions MemoryOption, typename T>
     void CLWriteBuffer(cl_mem_wrapper<T> &mem, size_t size, const T *data)
     {
-        static_assert(MemoryOption != CudaMemoryOptions::Host, "Cannot use host with cl_mem_wrapper.");
-        static_assert(MemoryOption != CudaMemoryOptions::Symbol, "Symbol memory on OpenCL is not yet supported.");
-        if constexpr (MemoryOption == CudaMemoryOptions::Device)
-        {
-            auto context = GetProperContext(mem);
-            auto commandQueue = GetProperCommandQueue(mem);
-            cl_int err;
+        static_assert(MemoryOption != MemoryOptions::Host || MemoryOption != MemoryOptions::HostAlloc,
+                      "Cannot use host with cl_mem_wrapper.");
+        static_assert(MemoryOption != MemoryOptions::Symbol, "Symbol memory on OpenCL is not yet supported.");
 
+        auto context = GetProperContext(mem);
+        auto commandQueue = GetProperCommandQueue(mem);
+        cl_int err;
+
+        if constexpr (MemoryOption == MemoryOptions::Device)
             mem.m_mem = clCreateBuffer(context, mem.m_flags, size, nullptr, &err);
-            clEnqueueWriteBuffer(commandQueue, mem.m_mem, true, 0, size, (void *)data, 0, nullptr, nullptr);
-            clFlush(commandQueue);
-            clFinish(commandQueue);
-        }
+
+        clEnqueueWriteBuffer(commandQueue, mem.m_mem, true, 0, size, (void *)data, 0, nullptr, nullptr);
+        clFlush(commandQueue);
+        clFinish(commandQueue);
     }
 
     template <typename T>

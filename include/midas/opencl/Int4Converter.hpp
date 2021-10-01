@@ -17,7 +17,7 @@ namespace midas::opencl::protobuf
     class Int4Converter : public IConverter<Int4Converter>
     {
       public:
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_mem_wrapper<cl_int4> mem, protobuf_support::pb_int4 *out,
                            ConvertOptions convertOptions)
         {
@@ -26,20 +26,20 @@ namespace midas::opencl::protobuf
             this->SerializeBase(data, out, convertOptions);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_mem_wrapper<cl_int4> mem, protobuf_support::pb_int4 &out,
                            ConvertOptions convertOptions)
         {
             this->template SerializeBase(mem, &out, convertOptions);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_int4 &in, protobuf_support::pb_int4 &out, ConvertOptions convertOptions = {})
         {
             this->SerializeBase(in, &out, convertOptions);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void SerializeBase(const cl_int4 &in, protobuf_support::pb_int4 *out, ConvertOptions convertOptions = {})
         {
             out->set_x(in.x);
@@ -58,7 +58,7 @@ namespace midas::opencl::protobuf
             CLWriteBuffer<ConvertOptions::MemoryOption>(out, sizeof(cl_int4), &host);
         }
 
-        template <typename ConvertOptions = CudaConvertOptions<CudaMemoryOptions::Host>>
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
         void DeserializeBase(cl_int4 &out, const protobuf_support::pb_int4 &in, ConvertOptions convertOptions = {})
         {
             out = {(int)in.x(), (int)in.y(), (int)in.z(), (int)in.w()};

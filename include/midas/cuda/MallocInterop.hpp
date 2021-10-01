@@ -28,6 +28,8 @@ __host__ cudaError_t internalCudaFreeRedefine(void *devPtr)
 
     if (error == cudaSuccess)
         cudaMemoryMappings.erase(devPtr);
+
+    return error;
 }
 
 size_t cudaGetArraySize(void *devPtr)

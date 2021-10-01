@@ -7,6 +7,7 @@
 
 #include <midas/Converters.hpp>
 #include <midas/cuda/RegisterCudaConverter.hpp>
+#include <midas/cuda/VectorConverter.hpp>
 
 size_t cudaGetArraySize(void *);
 namespace midas::cuda::protobuf
