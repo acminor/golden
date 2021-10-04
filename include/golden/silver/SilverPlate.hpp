@@ -48,7 +48,7 @@ namespace golden
             }
 
             template <typename GoldenKey, typename RecoveryFn,
-                      std::enable_if_t<std::is_invocable_v<RecoveryFn, typename GoldenKey::MessageType>, bool> = true>
+                      std::enable_if_t<std::is_invocable_v<RecoveryFn, typename GoldenKey::MessageType &>, bool> = true>
             void DesilverBase(GoldenKey key, RecoveryFn recoveryFn)
             {
                 auto reader = Reader();
