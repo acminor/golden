@@ -15,14 +15,19 @@ target_sources(golden_tests
 target_include_directories(golden_tests
         PRIVATE ${GTEST_INCLUDE_DIR} ${CMAKE_BINARY_DIR}/tests)
 target_link_libraries(golden_tests PRIVATE golden gtest gtest_main)
+#target_compile_options(golden_tests PRIVATE
+#        -fsanitize=address -fno-omit-frame-pointer)
+#target_link_options(golden_tests PRIVATE
+#        -fsanitize=address)
 
 add_library(protobuf_support)
 target_link_libraries(protobuf_support PRIVATE protobuf)
 target_sources(protobuf_support PUBLIC
-        ${CMAKE_BINARY_DIR}/tests/midas/midas/ProtobufSupport.pb.cc
         ${CMAKE_BINARY_DIR}/tests/midas/midas/ProtobufSupport.pb.h
-        ${CMAKE_BINARY_DIR}/tests/midas/MidasTests.pb.cc
-        ${CMAKE_BINARY_DIR}/tests/midas/MidasTests.pb.h)
+        ${CMAKE_BINARY_DIR}/tests/midas/MidasTests.pb.h
+        PRIVATE
+        ${CMAKE_BINARY_DIR}/tests/midas/midas/ProtobufSupport.pb.cc
+        ${CMAKE_BINARY_DIR}/tests/midas/MidasTests.pb.cc)
 target_include_directories(protobuf_support PUBLIC
         ${CMAKE_BINARY_DIR}/tests/midas)
 add_custom_target(
@@ -45,6 +50,11 @@ add_dependencies(protobuf_support protobuf_support_gen)
 #target_link_libraries(midas_cuda_tests PRIVATE midas gtest gtest_main protobuf_support)
 
 add_executable(midas_opencl_tests)
+target_compile_options(midas_opencl_tests PRIVATE
+        -fsanitize=address
+        -g3)
+target_link_options(midas_opencl_tests PRIVATE
+        -fsanitize=address)
 target_sources(midas_opencl_tests
         PRIVATE
         midas/opencl/Driver.cpp)
@@ -55,6 +65,11 @@ target_include_directories(midas_opencl_tests
 target_link_libraries(midas_opencl_tests PRIVATE midas gtest gtest_main protobuf_support OpenCL)
 
 add_executable(midas_cuda_tests)
+target_compile_options(midas_cuda_tests PRIVATE
+        -fsanitize=address
+        -g3)
+target_link_options(midas_cuda_tests PRIVATE
+        -fsanitize=address)
 target_sources(midas_cuda_tests
         PRIVATE
         midas/cuda/Driver.cu)

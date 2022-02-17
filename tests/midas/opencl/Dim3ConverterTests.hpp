@@ -43,12 +43,12 @@ TEST(Dim3Tests, Serialize)
     auto deviceIn = easyBufferCreate(&hostIn, sizeof(hostIn));
     Converter.Serialize(cl_mem_wrapper<size_t>(deviceIn, CL_MEM_READ_WRITE, OpenClData.context, OpenClData.queue),
                         serialOut.mutable_data(), make_options<MemoryOptions::Device>());
-
     {
         std::string result;
         messageDifferencer.ReportDifferencesToString(&result);
         ASSERT_TRUE(messageDifferencer.Compare(serialExpected, serialOut)) << result << std::endl;
     }
+    clReleaseMemObject(deviceIn);
 }
 
 TEST(Dim3Tests, Deserialize)
@@ -84,4 +84,6 @@ TEST(Dim3Tests, Deserialize)
 
     for (int i = 0; i < 3; i++)
         ASSERT_EQ(hostOut[i], hostExpected[i]);
+
+    clReleaseMemObject(deviceOut);
 }
