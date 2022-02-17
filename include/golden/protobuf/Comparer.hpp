@@ -26,7 +26,8 @@ namespace golden
                 m_messageDifferencer.set_scope(MessageDifferencer::FULL);
             }
 
-            template <typename T> inline int compare(T a, T b)
+            template <typename T>
+            inline int compare(T a, T b)
             {
                 auto equal = m_messageDifferencer.Compare(a, b);
 
