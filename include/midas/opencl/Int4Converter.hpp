@@ -30,7 +30,7 @@ namespace midas::opencl::protobuf
         void SerializeBase(const cl_mem_wrapper<cl_int4> mem, protobuf_support::pb_int4 &out,
                            ConvertOptions convertOptions)
         {
-            this->template SerializeBase(mem, &out, convertOptions);
+            this->SerializeBase(mem, &out, convertOptions);
         }
 
         template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
