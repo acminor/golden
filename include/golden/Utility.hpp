@@ -131,6 +131,22 @@ namespace golden
         std::string m_path;
     };
 
+    class GoldenException : public std::exception
+    {
+      public:
+        explicit GoldenException(std::string message) : m_message(message)
+        {
+        }
+
+        const char *what() const noexcept override
+        {
+            return m_message.c_str();
+        }
+
+      private:
+        std::string m_message;
+    };
+
     class GoldenUtility
     {
       public:
@@ -147,7 +163,7 @@ namespace golden
         inline static std::ifstream ReadFromGolden(GoldenKey key)
         {
             if (!fs::exists(PathToGolden(key)))
-                throw "TODO implement proper exception";
+                throw GoldenException(PathToGolden(key).string());
 
             std::ifstream in(PathToGolden(key), std::ios_base::binary);
             return in;
