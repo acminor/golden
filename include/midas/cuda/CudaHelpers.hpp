@@ -4,7 +4,10 @@
 
 #pragma once
 
+#include <chrono>
 #include <cstring>
+#include <cuda.h>
+#include <thread>
 
 namespace midas::cuda
 {
