@@ -1,4 +1,5 @@
 cmake-build-debug/
 tests/GOLDEN/
+build/
 
 *.o
