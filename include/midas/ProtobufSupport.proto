@@ -9,6 +9,19 @@ message pb_dim3
   uint32 z = 3;
 }
 
+message pb_float2
+{
+  float x = 1;
+  float y = 2;
+}
+
+message pb_float3
+{
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
 message pb_float4
 {
   float x = 1;
@@ -17,12 +30,24 @@ message pb_float4
   float w = 4;
 }
 
+message pb_int2
+{
+  int32 x = 1;
+  int32 y = 2;
+}
+
 message pb_int4
 {
   int32 x = 1;
   int32 y = 2;
   int32 z = 3;
   int32 w = 4;
+}
+
+message pb_complex
+{
+  float real = 1;
+  float imag = 2;
 }
 
 message float_vec

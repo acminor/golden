@@ -6,7 +6,11 @@
 #define GOLDEN_MIDAS_CUDACONVERTERS_HPP
 
 #include <midas/cuda/Dim3Converter.hpp>
+#include <midas/cuda/Float2Converter.hpp>
+#include <midas/cuda/Float3Converter.hpp>
 #include <midas/cuda/Float4Converter.hpp>
+#include <midas/cuda/ComplexConverter.hpp>
+#include <midas/cuda/Int2Converter.hpp>
 #include <midas/cuda/Int4Converter.hpp>
 #include <midas/cuda/PrimitiveConverter.hpp>
 #include <midas/cuda/VectorConverter.hpp>
