@@ -29,7 +29,7 @@ namespace midas::cuda
         }
         else if constexpr (MemoryOption == MemoryOptions::Symbol)
         {
-            cudaMemcpyFromSymbol(data, mem, size);
+            cudaMemcpyFromSymbol(data, *mem, size);
         }
     }
 
@@ -60,7 +60,9 @@ namespace midas::cuda
         }
         else if constexpr (MemoryOption == MemoryOptions::Symbol)
         {
-            cudaMemcpyToSymbol(mem, data, size);
+            // TODO need logic to handle C vs CXX api for cudaMemcpyToSymbol
+            // - these have 2 different apis and will still compile but work incorrectly
+            cudaMemcpyToSymbol(*mem, data, size);
         }
     }
 

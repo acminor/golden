@@ -24,6 +24,31 @@
 
 #include <iostream>
 
+/*
+ * Based off of example implementation of std::remove_extent from
+ * https://en.cppreference.com/w/cpp/types/remove_extent
+ *
+ * For now the only normalization this handles is making an array become
+ * a pointer for use with our pointer-based API
+ */
+template <typename T>
+struct NormalizeType
+{
+    typedef T type;
+};
+
+template <typename T>
+struct NormalizeType<T[]>
+{
+    typedef T* type;
+};
+
+template <typename T, std::size_t N>
+struct NormalizeType<T[N]>
+{
+    typedef T* type;
+};
+
 template <typename CRTP>
 class IConverter
 {
@@ -31,13 +56,17 @@ class IConverter
     template <typename HostType, typename SerialType, typename OptionsType>
     void Serialize(HostType &&a, SerialType &&b, OptionsType c)
     {
-        static_cast<CRTP *>(this)->SerializeBase(std::forward<HostType>(a), std::forward<SerialType>(b), c);
+        using type = typename NormalizeType<HostType>::type;
+        static_cast<CRTP *>(this)->SerializeBase(std::forward<type>(a),
+            std::forward<SerialType>(b), c);
     }
 
     template <typename HostType, typename SerialType, typename OptionsType>
     void Deserialize(HostType &&a, SerialType &&b, OptionsType c)
     {
-        static_cast<CRTP *>(this)->DeserializeBase(std::forward<HostType>(a), std::forward<SerialType>(b), c);
+        using type = typename NormalizeType<HostType>::type;
+        static_cast<CRTP *>(this)->DeserializeBase(std::forward<type>(a),
+            std::forward<SerialType>(b), c);
     }
 };
 
