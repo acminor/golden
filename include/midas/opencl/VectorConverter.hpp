@@ -41,6 +41,26 @@ namespace midas::opencl::protobuf
                 out(x);
         }
 
+        template <typename HostType, typename SerialOutFunction, typename ConvertOptions>
+        void SerializeBase(const std::pair<HostType*, size_t> in, SerialOutFunction out,
+                           ConvertOptions options)
+        {
+            for (auto *x = in.first; x < in.first + in.second; x++)
+                out(*x);
+        }
+
+        template <typename HostType, typename SerialType, typename ConvertOptions>
+        void DeserializeBase(HostType *hostMem, SerialType snapshotField, ConvertOptions options)
+        {
+            int i = 0;
+            for (const auto &x : snapshotField)
+            {
+                HostType temp;
+                options.SubConverterOpts.Converter.Deserialize(temp, x);
+                hostMem[i++] = temp;
+            }
+        }
+
         template <typename HostType, typename SerialType, typename ConvertOptions>
         void DeserializeBase(std::vector<HostType> &hostMem, SerialType snapshotField, ConvertOptions options)
         {
