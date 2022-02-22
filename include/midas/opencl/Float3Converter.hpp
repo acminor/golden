@@ -11,8 +11,7 @@
 #include <midas/opencl/OpenCLHelpers.hpp>
 
 #include <CL/opencl.h>
-midas::opencl::protobuf
-{
+namespace midas::opencl::protobuf {
     class Float3Converter : public IConverter<Float3Converter>
     {
       public:
