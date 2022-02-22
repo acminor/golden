@@ -61,6 +61,51 @@ namespace midas::opencl::protobuf
         {
             out = {in.x(), in.y()};
         }
+
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
+        void SerializeBase(const cl_mem_wrapper<cl_float2> mem, protobuf_support::pb_complex *out,
+                           ConvertOptions convertOptions)
+        {
+            cl_float2 data;
+            CLReadBuffer<ConvertOptions::MemoryOption>(mem, data);
+            this->SerializeBase(data, out, convertOptions);
+        }
+
+        template <typename ConvertOptions = CudaConvertOptions<MemoryOptions::Host>>
+        void SerializeBase(const cl_mem_wrapper<cl_float2> mem, protobuf_support::pb_complex &out,
+                           ConvertOptions convertOptions)
+        {
+            this->SerializeBase(mem, &out, convertOptions);
+        }
+
+        template <typename ConvertOptions>
+        void SerializeBase(const cl_float2 &in, protobuf_support::pb_complex &out, ConvertOptions convertOptions)
+        {
+            this->SerializeBase(in, &out, convertOptions);
+        }
+
+        template <typename ConvertOptions>
+        void SerializeBase(const cl_float2 &in, protobuf_support::pb_complex *out, ConvertOptions convertOptions)
+        {
+            out->set_real(in.x);
+            out->set_imag(in.y);
+        }
+
+        template <typename ConvertOptions>
+        void DeserializeBase(cl_mem_wrapper<cl_float2> out, const protobuf_support::pb_complex &in,
+                             ConvertOptions convertOptions)
+        {
+            cl_float2 host;
+            this->DeserializeBase(host, in, convertOptions);
+
+            CLWriteBuffer<ConvertOptions::MemoryOption>(out, sizeof(cl_float2), &host);
+        }
+
+        template <typename ConvertOptions>
+        void DeserializeBase(cl_float2 &out, const protobuf_support::pb_complex &in, ConvertOptions convertOptions)
+        {
+            out = {in.real(), in.imag()};
+        }
     };
 
     RegisterCudaConverter1(Float2Converter);
