@@ -78,6 +78,10 @@ namespace golden
                 throw "TODO Implement Require Execption";
         }
 
+        TesterBase& GetBaseRef() {
+            return m_testerBase;
+        }
+
       private:
         TesterBase m_testerBase;
     };

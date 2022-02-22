@@ -16,6 +16,18 @@ namespace golden
     {
         using namespace google::protobuf::util;
 
+        struct FloatEpsilon {
+            float fraction;
+            float margin;
+
+            FloatEpsilon(float fraction, float margin):
+            fraction(fraction), margin(margin) {}
+
+            static FloatEpsilon FromEpsilon(float epsilon) {
+                return FloatEpsilon(0.0f, epsilon);
+            }
+        };
+
         class Comparer
         {
           public:
@@ -47,6 +59,11 @@ namespace golden
                         std::cout << m_reporter << std::endl;
                     return -1;
                 }
+            }
+
+            void SetEpsilon(FloatEpsilon epsilon) {
+                m_fieldComparator.set_float_comparison(google::protobuf::util::DefaultFieldComparator::APPROXIMATE);
+                m_fieldComparator.SetDefaultFractionAndMargin(epsilon.fraction, epsilon.margin);
             }
 
           private:
