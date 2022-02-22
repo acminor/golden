@@ -49,6 +49,18 @@ struct NormalizeType<T[N]>
     typedef T* type;
 };
 
+template <typename T>
+struct NormalizeType<T(&)[]>
+{
+    typedef T* type;
+};
+
+template <typename T, std::size_t N>
+struct NormalizeType<T(&)[N]>
+{
+    typedef T* type;
+};
+
 template <typename CRTP>
 class IConverter
 {
