@@ -18,6 +18,17 @@ namespace midas::cuda
                                       MemoryOption == MemoryOptions::Symbol;
     };
 
+#ifdef MIDAS_CUDA_MALLOC_INTEROP_ENABLED
+    void CudaEraseAllMemory()
+    {
+        while (!cudaMemoryMappings.empty())
+        {
+            auto it = cudaMemoryMappings.begin();
+            cudaFree(it->first);
+        }
+    }
+#endif
+
     template <MemoryOptions MemoryOption, typename T>
     void CudaReadBuffer(const T *mem, size_t size, T *data)
     {
