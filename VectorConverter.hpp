@@ -37,8 +37,6 @@ namespace midas::opencl::protobuf
             std::vector<HostType> dataVector(length);
             CLReadBuffer<ConvertOptions::MemoryOption>(mem, byteSize, dataVector.data());
 
-            /* This should probably use SerializeBase above */
-            /* Based on above serialize base this might have a missing & bug, need to test this */
             for (auto x : dataVector)
                 out(x);
         }
